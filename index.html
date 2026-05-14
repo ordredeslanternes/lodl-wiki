@@ -5,175 +5,178 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>L'Ordre des Lanternes — Wiki</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
     --gold: #c9a84c;
     --gold-dim: #8a6d2f;
+    --gold-bright: #f0c96a;
     --ember: #e87040;
-    --dark-bg: #0a0805;
-    --panel-bg: rgba(10,8,5,0.15);
-    --panel-border: rgba(201,168,76,0.18);
-    --text-main: #ffffff;
-    --text-muted: rgba(255,255,255,0.75);
-    --text-dim: rgba(255,255,255,0.4);
+    --dark: #0d0b09;
+    --dark2: #151210;
+    --dark3: #1c1813;
+    --border: rgba(201,168,76,0.18);
+    --text: #ffffff;
+    --text-muted: rgba(255,255,255,0.65);
+    --text-dim: rgba(255,255,255,0.35);
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #0a0805; color: var(--text-main); font-family: 'Crimson Pro', Georgia, serif; min-height: 100vh; overflow-x: hidden; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--dark); color: #ffffff; font-family: 'Crimson Pro', serif; min-height:100vh; overflow-x:hidden; }
 
-  /* ── SLIDESHOW (always visible behind everything) ── */
-  #slideshow { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
-  .slides-track { display: flex; height: 100%; width: calc(100% * 8); transition: transform 1.2s cubic-bezier(0.77,0,0.175,1); }
-  .slide { width: calc(100% / 8); height: 100%; flex-shrink: 0; background-size: cover; background-position: center; }
-  .slide:nth-child(1) { background-image: url('diapo_accueil/1.png'); }
-  .slide:nth-child(2) { background-image: url('diapo_accueil/2.png'); }
-  .slide:nth-child(3) { background-image: url('diapo_accueil/3.png'); }
-  .slide:nth-child(4) { background-image: url('diapo_accueil/4.png'); }
-  .slide:nth-child(5) { background-image: url('diapo_accueil/5.png'); }
-  .slide:nth-child(6) { background-image: url('diapo_accueil/6.png'); }
-  .slide:nth-child(7) { background-image: url('diapo_accueil/7.png'); }
-  .slide:nth-child(8) { background-image: url('diapo_accueil/8.png'); }
-  #slideshow::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,8,5,0.18) 0%, rgba(10,8,5,0.25) 40%, rgba(10,8,5,0.6) 100%); z-index: 1; }
+  /* ── CURSOR ── */
+  #cursorCanvas { position:fixed; inset:0; pointer-events:none; z-index:9999; }
 
-  /* ── SLIDE DOTS ── */
-  .slide-dots { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 20; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(201,168,76,0.25); border: 1px solid rgba(201,168,76,0.5); transition: all 0.4s; cursor: pointer; }
-  .dot.active { background: var(--gold); width: 22px; border-radius: 3px; }
-
-  /* ── CURSOR CANVAS ── */
-  #cursorCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 9998; }
-
-  /* ── PASSWORD GATE ── */
-  #gate { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 500; }
-  .gate-card { background: rgba(10,8,5,0.82);  border: 1px solid rgba(201,168,76,0.25); padding: 3rem 3.5rem; display: flex; flex-direction: column; align-items: center; gap: 1.8rem; max-width: 420px; width: 90%; }
-  .gate-lantern { font-size: 3.5rem; animation: flicker 3s ease-in-out infinite; }
-  @keyframes flicker { 0%,100% { filter: drop-shadow(0 0 20px rgba(201,168,76,0.7)); } 50% { filter: drop-shadow(0 0 6px rgba(201,168,76,0.15)); } }
-  .gate-title { font-family: 'Cinzel', serif; font-size: clamp(1.3rem,3vw,1.9rem); color: var(--gold); letter-spacing: 0.15em; text-align: center; }
-  .gate-subtitle { font-size: 0.92rem; color: rgba(255,255,255,0.55); letter-spacing: 0.1em; font-style: italic; text-align: center; margin-top: -0.8rem; }
-  .gate-divider { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim), transparent); }
-  .gate-form { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
-  .gate-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(201,168,76,0.3); border-radius: 2px; padding: 0.85rem 1.2rem; font-family: 'Crimson Pro', serif; font-size: 1.1rem; color: #fff; letter-spacing: 0.15em; outline: none; transition: border-color 0.3s; text-align: center; }
-  .gate-input::placeholder { color: rgba(255,255,255,0.3); }
-  .gate-input:focus { border-color: var(--gold-dim); }
-  .gate-btn { background: transparent; border: 1px solid var(--gold-dim); color: var(--gold); font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.25em; padding: 0.7rem 2.5rem; cursor: pointer; transition: all 0.3s; text-transform: uppercase; }
-  .gate-btn:hover { background: rgba(201,168,76,0.12); border-color: var(--gold); }
-  .gate-error { color: #e87040; font-size: 0.88rem; font-style: italic; min-height: 1.2em; text-align: center; }
+  /* ── GATE ── */
+  #gate { position:fixed; inset:0; z-index:500; display:flex; align-items:center; justify-content:center; }
+  .gate-bg { position:absolute; inset:0; background:rgba(0,0,0,0.6); }
+  .gate-card { position:relative; background:rgba(13,11,9,0.92); border:1px solid var(--border); padding:3rem 3.5rem; display:flex; flex-direction:column; align-items:center; gap:1.8rem; max-width:420px; width:90%; }
+  .gate-lantern { font-size:3.5rem; animation:flicker 3s ease-in-out infinite; }
+  @keyframes flicker { 0%,100%{filter:drop-shadow(0 0 20px rgba(201,168,76,0.7));} 50%{filter:drop-shadow(0 0 6px rgba(201,168,76,0.15));} }
+  .gate-title { font-family:'Cinzel',serif; font-size:clamp(1.3rem,3vw,1.9rem); color:var(--gold); letter-spacing:0.15em; text-align:center; }
+  .gate-subtitle { font-size:0.95rem; color:rgba(255,255,255,0.85); letter-spacing:0.1em; font-style:italic; text-align:center; margin-top:-0.8rem; }
+  .gate-divider { width:80px; height:1px; background:linear-gradient(90deg,transparent,var(--gold-dim),transparent); }
+  .gate-form { display:flex; flex-direction:column; align-items:center; gap:1rem; width:100%; }
+  .gate-input { width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(201,168,76,0.3); border-radius:2px; padding:0.85rem 1.2rem; font-family:'Crimson Pro',serif; font-size:1.1rem; color:#fff; letter-spacing:0.15em; outline:none; transition:border-color 0.3s; text-align:center; }
+  .gate-input::placeholder { color:rgba(255,255,255,0.25); }
+  .gate-input:focus { border-color:var(--gold-dim); }
+  .gate-btn { background:transparent; border:1px solid var(--gold-dim); color:var(--gold); font-family:'Cinzel',serif; font-size:0.82rem; letter-spacing:0.25em; padding:0.75rem 2.5rem; cursor:pointer; transition:all 0.3s; text-transform:uppercase; }
+  .gate-btn:hover { background:rgba(201,168,76,0.12); border-color:var(--gold); }
+  .gate-error { color:#e87040; font-size:0.88rem; font-style:italic; min-height:1.2em; text-align:center; }
+  /* Gate slideshow bg */
+  .gate-slideshow { position:absolute; inset:0; overflow:hidden; }
+  .gate-slides { display:flex; height:100%; width:calc(100% * 8); transition:transform 1.2s cubic-bezier(0.77,0,0.175,1); }
+  .gate-slide { width:calc(100% / 8); height:100%; flex-shrink:0; background-size:cover; background-position:center; }
+  .gate-slide:nth-child(1){background-image:url('diapo_accueil/1.png');}
+  .gate-slide:nth-child(2){background-image:url('diapo_accueil/2.png');}
+  .gate-slide:nth-child(3){background-image:url('diapo_accueil/3.png');}
+  .gate-slide:nth-child(4){background-image:url('diapo_accueil/4.png');}
+  .gate-slide:nth-child(5){background-image:url('diapo_accueil/5.png');}
+  .gate-slide:nth-child(6){background-image:url('diapo_accueil/6.png');}
+  .gate-slide:nth-child(7){background-image:url('diapo_accueil/7.png');}
+  .gate-slide:nth-child(8){background-image:url('diapo_accueil/8.png');}
 
   /* ── WIKI ── */
-  #wiki { display: none; position: relative; z-index: 10; min-height: 100vh; }
+  #wiki { display:none; }
 
-  /* ── HEADER ── */
-  header { padding: 3rem 2rem 2rem; text-align: center; border-bottom: 1px solid rgba(201,168,76,0.15); background: rgba(10,8,5,0.15);  }
-  .header-ornament { color: var(--gold-dim); font-size: 1rem; letter-spacing: 0.5em; margin-bottom: 1.5rem; display: block; }
-  h1 { font-family: 'Cinzel', serif; font-size: clamp(2rem,6vw,4rem); font-weight: 700; color: var(--gold); letter-spacing: 0.1em; line-height: 1.1; text-shadow: 0 0 40px rgba(201,168,76,0.3); }
-  .header-sub { font-size: clamp(0.9rem,2vw,1.1rem); color: rgba(255,255,255,0.65); font-style: italic; letter-spacing: 0.12em; margin-top: 0.8rem; }
-  .header-line { width: 120px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim), transparent); margin: 1.5rem auto 0; }
+  /* ── TOP BAR (HP style) ── */
+  .topbar { background:var(--dark); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 2rem; height:64px; position:sticky; top:0; z-index:100; }
+  .topbar-logo { font-family:'Cinzel',serif; font-size:1.4rem; color:var(--gold); letter-spacing:0.15em; text-decoration:none; white-space:nowrap; }
+  .topbar-logo span { font-size:0.75rem; display:block; letter-spacing:0.3em; color:rgba(255,255,255,0.55); margin-top:-2px; }
+  .topbar-search { display:flex; align-items:center; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:2px; padding:0.4rem 0.9rem; gap:0.5rem; }
+  .topbar-search input { background:none; border:none; outline:none; color:#fff; font-family:'Crimson Pro',serif; font-size:0.95rem; width:180px; }
+  .topbar-search input::placeholder { color:rgba(255,255,255,0.55); }
+  .topbar-search span { color:rgba(255,255,255,0.55); font-size:1rem; }
 
-  /* ── NAV ── */
-  nav { display: flex; justify-content: center; padding: 0 2rem; border-bottom: 1px solid rgba(201,168,76,0.15); background: rgba(10,8,5,0.18);  overflow-x: auto; position: relative; }
-  nav a { color: rgba(255,255,255,0.6); text-decoration: none; font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.18em; text-transform: uppercase; padding: 1rem 1.4rem; border-bottom: 2px solid transparent; transition: all 0.3s; white-space: nowrap; }
-  nav a:hover { color: #fff; border-bottom-color: var(--gold-dim); }
-  nav a.lanternerie { color: rgba(255,255,255,0.6); }
-  nav a.lanternerie:hover { color: #fff; }
+  /* ── NAV BAR ── */
+  .navbar { background:var(--dark2); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow-x:auto; position:sticky; top:64px; z-index:99; }
+  .navbar a { color:rgba(255,255,255,0.85); text-decoration:none; font-family:'Cinzel',serif; font-size:0.78rem; letter-spacing:0.2em; text-transform:uppercase; padding:1rem 1.3rem; border-bottom:2px solid transparent; transition:all 0.25s; white-space:nowrap; display:inline-block; }
+  .navbar a:hover { color:#fff; border-bottom-color:var(--gold); }
+  .navbar a.lanternerie { color:rgba(255,255,255,0.85); }
+  .navbar a.lanternerie:hover { color:#fff; border-bottom-color:var(--gold); }
 
-  /* ── LANTERNERIE PANEL ── */
-  #lanternerie-panel {
-    display: none;
-    position: fixed;
-    top: 0; right: 0; bottom: 0;
-    width: 320px;
-    background: rgba(10,8,5,0.92);
-    backdrop-filter: blur(2px);
-    border-left: 1px solid rgba(201,168,76,0.2);
-    z-index: 200;
-    padding: 2.5rem 2rem;
-    flex-direction: column;
-    gap: 2rem;
-  }
-  #lanternerie-panel.open { display: flex; }
-  .panel-title { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); letter-spacing: 0.2em; text-transform: uppercase; }
-  .panel-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: rgba(255,255,255,0.4); font-size: 1.4rem; cursor: pointer; transition: color 0.2s; }
-  .panel-close:hover { color: #fff; }
-  .panel-section { display: flex; flex-direction: column; gap: 0.8rem; }
-  .panel-label { font-size: 0.75rem; color: rgba(255,255,255,0.45); letter-spacing: 0.15em; font-family: 'Cinzel', serif; text-transform: uppercase; }
+  /* ── HERO (slideshow) ── */
+  .hero { position:relative; height:85vh; min-height:520px; overflow:hidden; }
+  .hero-slides { display:flex; height:100%; width:calc(100% * 8); transition:transform 1.2s cubic-bezier(0.77,0,0.175,1); }
+  .hero-slide { width:calc(100% / 8); height:100%; flex-shrink:0; background-size:cover; background-position:center; }
+  .hero-slide:nth-child(1){background-image:url('diapo_accueil/1.png');}
+  .hero-slide:nth-child(2){background-image:url('diapo_accueil/2.png');}
+  .hero-slide:nth-child(3){background-image:url('diapo_accueil/3.png');}
+  .hero-slide:nth-child(4){background-image:url('diapo_accueil/4.png');}
+  .hero-slide:nth-child(5){background-image:url('diapo_accueil/5.png');}
+  .hero-slide:nth-child(6){background-image:url('diapo_accueil/6.png');}
+  .hero-slide:nth-child(7){background-image:url('diapo_accueil/7.png');}
+  .hero-slide:nth-child(8){background-image:url('diapo_accueil/8.png');}
+  .hero-overlay { position:absolute; inset:0; background:linear-gradient(to right, rgba(13,11,9,0.75) 0%, rgba(13,11,9,0.2) 50%, transparent 100%); z-index:1; }
+  .hero-overlay-bottom { position:absolute; bottom:0; left:0; right:0; height:200px; background:linear-gradient(to top, var(--dark), transparent); z-index:2; }
+  .hero-content { position:absolute; bottom:0; left:0; z-index:3; padding:3rem 4rem; max-width:680px; }
+  .hero-tag { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.35em; color:var(--gold); text-transform:uppercase; margin-bottom:1rem; }
+  .hero-title { font-family:'Cinzel',serif; font-size:clamp(2.5rem,6vw,4.5rem); font-weight:700; color:#fff; line-height:1.05; letter-spacing:0.05em; text-shadow:0 2px 20px rgba(0,0,0,0.8); margin-bottom:1rem; }
+  .hero-sub { font-size:1.2rem; color:rgba(255,255,255,0.85); font-style:italic; line-height:1.7; text-shadow:0 1px 8px rgba(0,0,0,0.9); margin-bottom:2rem; }
+  .hero-btn { display:inline-block; background:var(--gold); color:#0d0b09; font-family:'Cinzel',serif; font-size:0.78rem; letter-spacing:0.25em; text-transform:uppercase; padding:0.8rem 2rem; text-decoration:none; transition:all 0.3s; font-weight:600; }
+  .hero-btn:hover { background:var(--gold-bright); }
 
-  /* Color wheel */
-  .color-wheel-wrap { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-  #colorWheel { width: 180px; height: 180px; border-radius: 50%; cursor: crosshair; border: 2px solid rgba(201,168,76,0.3); }
-  .brightness-row { display: flex; align-items: center; gap: 0.8rem; width: 100%; }
-  .brightness-row label { font-size: 0.72rem; color: rgba(255,255,255,0.45); letter-spacing: 0.1em; font-family: 'Cinzel', serif; white-space: nowrap; }
-  #brightnessSlider { flex: 1; accent-color: var(--gold); }
-  .color-preview { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); transition: background 0.2s; flex-shrink: 0; }
+  /* Slide dots */
+  .hero-dots { position:absolute; bottom:1.5rem; right:2rem; display:flex; gap:8px; z-index:4; }
+  .dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.5); transition:all 0.4s; cursor:pointer; }
+  .dot.active { background:var(--gold); width:22px; border-radius:3px; }
 
-  /* Preset colors */
-  .preset-colors { display: flex; gap: 10px; flex-wrap: wrap; }
-  .preset { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
-  .preset:hover, .preset.selected { border-color: #fff; transform: scale(1.15); }
+  /* ── CONTENT SECTION ── */
+  .content { background:var(--dark); padding:4rem 4rem; }
+  .section-header { display:flex; align-items:center; gap:1.5rem; margin-bottom:2.5rem; }
+  .section-header h2 { font-family:'Cinzel',serif; font-size:1.1rem; color:var(--gold); letter-spacing:0.25em; text-transform:uppercase; white-space:nowrap; }
+  .section-header::after { content:''; flex:1; height:1px; background:var(--border); }
 
-  /* Toggle */
-  .toggle-row { display: flex; align-items: center; justify-content: space-between; }
-  .toggle-label { font-size: 0.9rem; color: rgba(255,255,255,0.7); }
-  .toggle { position: relative; width: 44px; height: 24px; }
-  .toggle input { opacity: 0; width: 0; height: 0; }
-  .toggle-slider { position: absolute; inset: 0; background: rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; transition: background 0.3s; }
-  .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.3s; }
-  .toggle input:checked + .toggle-slider { background: var(--gold-dim); }
-  .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
-
-  /* ── CONTENT BLOCKS ── */
-  .search-bar { max-width: 480px; margin: 3rem auto 0; padding: 0 2rem; position: relative; }
-  .search-input { width: 100%; background: rgba(10,8,5,0.12);  border: 1px solid rgba(201,168,76,0.2); border-radius: 2px; padding: 0.75rem 1rem 0.75rem 2.8rem; font-family: 'Crimson Pro', serif; font-size: 1rem; color: #fff; outline: none; transition: border-color 0.3s; }
-  .search-input::placeholder { color: rgba(255,255,255,0.3); }
-  .search-input:focus { border-color: var(--gold-dim); }
-  .search-icon { position: absolute; left: 2.9rem; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 1.1rem; pointer-events: none; }
-
-  .portal-intro { text-align: center; padding: 3rem 2rem 1rem; max-width: 700px; margin: 0 auto; }
-  .portal-intro p { font-size: 1.3rem; color: rgba(255,255,255,0.7); font-style: italic; line-height: 1.9; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
-
-  /* ── VIGNETTES ── */
-  .vignettes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5px; padding: 3rem; max-width: 1200px; margin: 0 auto; }
-  .vignette { background: rgba(10,8,5,0.12);  border: 1px solid rgba(201,168,76,0.15); padding: 2.5rem 2rem; cursor: pointer; transition: all 0.4s ease; position: relative; overflow: hidden; text-decoration: none; display: block; }
-  .vignette::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at top left, rgba(201,168,76,0.07) 0%, transparent 60%); opacity: 0; transition: opacity 0.4s; }
-  .vignette:hover { border-color: rgba(201,168,76,0.4); transform: translateY(-2px); background: rgba(10,8,5,0.15); }
-  .vignette:hover::before { opacity: 1; }
-  .vignette-icon { font-size: 2rem; margin-bottom: 1.2rem; display: block; transition: filter 0.3s; }
-  .vignette:hover .vignette-icon { filter: drop-shadow(0 0 8px rgba(201,168,76,0.5)); }
-  .vignette-title { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.12em; margin-bottom: 0.8rem; text-transform: uppercase; }
-  .vignette-desc { font-size: 1.1rem; color: rgba(255,255,255,0.7); line-height: 1.7; font-style: italic; }
-  .vignette-count { position: absolute; bottom: 1.2rem; right: 1.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.3); font-family: 'Cinzel', serif; }
+  /* ── CARDS GRID ── */
+  .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1px; background:var(--border); margin-bottom:1px; }
+  .card { background:var(--dark2); padding:2rem 2rem 2.5rem; text-decoration:none; display:block; transition:background 0.25s; position:relative; overflow:hidden; }
+  .card::before { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--gold); transform:scaleX(0); transition:transform 0.3s; transform-origin:left; }
+  .card:hover { background:var(--dark3); }
+  .card:hover::before { transform:scaleX(1); }
+  .card-icon { font-size:2.2rem; margin-bottom:1.2rem; display:block; }
+  .card-category { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; margin-bottom:0.6rem; }
+  .card-title { font-family:'Cinzel',serif; font-size:1.2rem; color:#fff; margin-bottom:0.8rem; letter-spacing:0.05em; }
+  .card-desc { font-size:1.05rem; color:rgba(255,255,255,0.85); line-height:1.7; font-style:italic; }
+  .card-count { position:absolute; top:1.5rem; right:1.5rem; font-size:0.75rem; color:rgba(255,255,255,0.55); font-family:'Cinzel',serif; }
 
   /* ── FEATURED ── */
-  .featured-section { padding: 2rem 3rem 4rem; max-width: 1200px; margin: 0 auto; }
-  .section-label { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
-  .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,168,76,0.15); }
-  .featured-card { background: rgba(10,8,5,0.12);  border: 1px solid rgba(201,168,76,0.15); padding: 2rem 2.5rem; display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start; transition: border-color 0.3s; cursor: pointer; text-decoration: none; }
-  .featured-card:hover { border-color: rgba(201,168,76,0.4); }
-  .featured-tag { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.25em; color: var(--ember); text-transform: uppercase; margin-bottom: 0.7rem; }
-  .featured-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--gold); margin-bottom: 0.8rem; }
-  .featured-body { font-size: 1.15rem; color: rgba(255,255,255,0.7); line-height: 1.8; font-style: italic; max-width: 600px; }
-  .featured-meta { font-size: 0.95rem; color: rgba(255,255,255,0.35); font-family: 'Cinzel', serif; letter-spacing: 0.1em; text-align: right; white-space: nowrap; }
+  .featured { background:var(--dark2); border-top:1px solid var(--border); padding:3rem 4rem; display:grid; grid-template-columns:1fr 280px; gap:3rem; align-items:start; }
+  .featured-left .tag { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.3em; color:var(--ember); text-transform:uppercase; margin-bottom:0.8rem; }
+  .featured-left h3 { font-family:'Cinzel',serif; font-size:2rem; color:var(--gold); margin-bottom:1rem; }
+  .featured-left p { font-size:1.15rem; color:rgba(255,255,255,0.85); line-height:1.9; font-style:italic; }
+  .featured-right { border-left:1px solid var(--border); padding-left:2.5rem; }
+  .featured-right .mini-title { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.25em; color:rgba(255,255,255,0.55); text-transform:uppercase; margin-bottom:1.5rem; }
+  .featured-link { display:block; padding:1rem 0; border-bottom:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s; }
+  .featured-link:hover { padding-left:0.5rem; }
+  .featured-link .fl-cat { font-size:0.72rem; color:var(--gold); font-family:'Cinzel',serif; letter-spacing:0.15em; }
+  .featured-link .fl-title { font-size:1rem; color:#fff; margin-top:0.2rem; }
 
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.2); border-radius: 3px; }
+  /* ── FOOTER ── */
+  footer { background:var(--dark); border-top:1px solid var(--border); text-align:center; padding:2.5rem; color:rgba(255,255,255,0.55); font-size:0.85rem; letter-spacing:0.12em; font-family:'Cinzel',serif; }
+
+  /* ── LANTERNERIE PANEL ── */
+  #lanternerie-panel { display:none; position:fixed; top:0; right:0; bottom:0; width:320px; background:rgba(13,11,9,0.97); border-left:1px solid var(--border); z-index:200; padding:2.5rem 2rem; flex-direction:column; gap:2rem; overflow-y:auto; }
+  #lanternerie-panel.open { display:flex; }
+  .panel-title { font-family:'Cinzel',serif; font-size:1rem; color:var(--gold); letter-spacing:0.2em; text-transform:uppercase; }
+  .panel-close { position:absolute; top:1.5rem; right:1.5rem; background:none; border:none; color:rgba(255,255,255,0.55); font-size:1.4rem; cursor:pointer; transition:color 0.2s; }
+  .panel-close:hover { color:#fff; }
+  .panel-section { display:flex; flex-direction:column; gap:0.8rem; }
+  .panel-label { font-size:0.72rem; color:rgba(255,255,255,0.55); letter-spacing:0.15em; font-family:'Cinzel',serif; text-transform:uppercase; }
+  .color-wheel-wrap { display:flex; flex-direction:column; align-items:center; gap:1rem; }
+  #colorWheel { width:180px; height:180px; border-radius:50%; cursor:crosshair; border:2px solid var(--border); }
+  .brightness-row { display:flex; align-items:center; gap:0.8rem; width:100%; }
+  .brightness-row label { font-size:0.72rem; color:rgba(255,255,255,0.55); font-family:'Cinzel',serif; white-space:nowrap; }
+  #brightnessSlider { flex:1; accent-color:var(--gold); }
+  .color-preview { width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,0.15); flex-shrink:0; }
+  .preset-colors { display:flex; gap:10px; flex-wrap:wrap; }
+  .preset { width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.2s; }
+  .preset:hover,.preset.selected { border-color:#fff; transform:scale(1.15); }
+  .toggle-row { display:flex; align-items:center; justify-content:space-between; }
+  .toggle-label { font-size:1rem; color:rgba(255,255,255,0.85); }
+  .toggle { position:relative; width:44px; height:24px; }
+  .toggle input { opacity:0; width:0; height:0; }
+  .toggle-slider { position:absolute; inset:0; background:rgba(255,255,255,0.15); border-radius:12px; cursor:pointer; transition:background 0.3s; }
+  .toggle-slider::before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform 0.3s; }
+  .toggle input:checked + .toggle-slider { background:var(--gold-dim); }
+  .toggle input:checked + .toggle-slider::before { transform:translateX(20px); }
+
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:var(--dark); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 </style>
 </head>
 <body>
 
-<!-- SLIDESHOW (toujours visible) -->
-<div id="slideshow">
-  <div class="slides-track" id="slidesTrack">
-    <div class="slide"></div><div class="slide"></div><div class="slide"></div><div class="slide"></div>
-    <div class="slide"></div><div class="slide"></div><div class="slide"></div><div class="slide"></div>
-  </div>
-</div>
-<div class="slide-dots" id="slideDots"></div>
-
-<!-- CURSOR -->
 <canvas id="cursorCanvas"></canvas>
 
 <!-- GATE -->
 <div id="gate">
+  <div class="gate-slideshow">
+    <div class="gate-slides" id="gateSlides">
+      <div class="gate-slide"></div><div class="gate-slide"></div><div class="gate-slide"></div><div class="gate-slide"></div>
+      <div class="gate-slide"></div><div class="gate-slide"></div><div class="gate-slide"></div><div class="gate-slide"></div>
+    </div>
+  </div>
+  <div class="gate-bg"></div>
   <div class="gate-card">
     <div class="gate-lantern">🏮</div>
     <div>
@@ -193,7 +196,6 @@
 <div id="lanternerie-panel">
   <button class="panel-close" onclick="closeLanternerie()">✕</button>
   <div class="panel-title">🏮 La Lanternerie</div>
-
   <div class="panel-section">
     <div class="panel-label">Couleur du filament</div>
     <div class="color-wheel-wrap">
@@ -205,33 +207,32 @@
       </div>
     </div>
   </div>
-
   <div class="panel-section">
     <div class="panel-label">Couleurs des lanternes</div>
     <div class="preset-colors" id="presetColors"></div>
   </div>
-
   <div class="panel-section">
     <div class="toggle-row">
       <span class="toggle-label">Filament actif</span>
-      <label class="toggle">
-        <input type="checkbox" id="trailToggle" checked>
-        <span class="toggle-slider"></span>
-      </label>
+      <label class="toggle"><input type="checkbox" id="trailToggle" checked><span class="toggle-slider"></span></label>
     </div>
   </div>
 </div>
 
 <!-- WIKI -->
 <div id="wiki">
-  <header>
-    <span class="header-ornament">✦ ✦ ✦</span>
-    <h1>L'Ordre des Lanternes</h1>
-    <p class="header-sub">Archives de Terre d'Ailleurs — Wiki Personnel</p>
-    <div class="header-line"></div>
-  </header>
 
-  <nav>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <a class="topbar-logo" href="#">L'Ordre des Lanternes<span>Archives de Terre d'Ailleurs</span></a>
+    <div class="topbar-search">
+      <span>⌕</span>
+      <input type="text" placeholder="Rechercher…">
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="navbar">
     <a href="#">Le Monde</a>
     <a href="#">La Magie</a>
     <a href="#">Organisations</a>
@@ -242,121 +243,124 @@
     <a href="#" class="lanternerie" onclick="openLanternerie(event)">🏮 Lanternerie</a>
   </nav>
 
-  <div class="search-bar">
-    <span class="search-icon">⌕</span>
-    <input type="text" class="search-input" placeholder="Rechercher dans les archives…">
+  <!-- HERO SLIDESHOW -->
+  <div class="hero">
+    <div class="hero-slides" id="heroSlides">
+      <div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div>
+      <div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-overlay-bottom"></div>
+    <div class="hero-content">
+      <div class="hero-tag">Archives Secrètes — Terre d'Ailleurs</div>
+      <div class="hero-title">L'Ordre des<br>Lanternes</div>
+      <div class="hero-sub">Un monde où les sylphes vivent dans les lanternes,<br>et où les lanterneurs gardent l'équilibre entre deux mondes.</div>
+      <a href="#" class="hero-btn">Explorer les archives</a>
+    </div>
+    <div class="hero-dots" id="heroDots"></div>
   </div>
 
-  <div class="portal-intro">
-    <p>Bienvenue dans les archives secrètes de l'Ordre des Lanternes.<br>Ce wiki est le grimoire personnel de l'univers de Terre d'Ailleurs.</p>
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="section-header"><h2>Explorer l'univers</h2></div>
+    <div class="cards">
+      <a class="card" href="#"><span class="card-icon">🌍</span><div class="card-category">Géographie</div><div class="card-title">Le Monde</div><div class="card-desc">Terre d'Ailleurs, ses continents, ses régions et les plans qui composent cet univers.</div><span class="card-count">0 articles</span></a>
+      <a class="card" href="#"><span class="card-icon">✨</span><div class="card-category">Système</div><div class="card-title">La Magie</div><div class="card-desc">Le système des lanternes, les sylphes, la Brume crépusculaire et les classes de l'Ordre.</div><span class="card-count">0 articles</span></a>
+      <a class="card" href="#"><span class="card-icon">🏛️</span><div class="card-category">Politique</div><div class="card-title">Organisations</div><div class="card-desc">L'Ordre des Lanternes, les Ligues, les factions politiques et les institutions d'Ailleurs.</div><span class="card-count">0 articles</span></a>
+      <a class="card" href="#"><span class="card-icon">👤</span><div class="card-category">Personnages</div><div class="card-title">Fiches</div><div class="card-desc">Héros, antagonistes, figures historiques et créatures notables de l'univers.</div><span class="card-count">0 articles</span></a>
+      <a class="card" href="#"><span class="card-icon">📜</span><div class="card-category">Chronologie</div><div class="card-title">Histoire</div><div class="card-desc">Les événements fondateurs, les guerres et les ères qui ont façonné Terre d'Ailleurs.</div><span class="card-count">0 articles</span></a>
+      <a class="card" href="#"><span class="card-icon">📰</span><div class="card-category">Lore</div><div class="card-title">Journaux Fictifs</div><div class="card-desc">Articles de presse et reportages issus des journaux de Terre d'Ailleurs.</div><span class="card-count">0 articles</span></a>
+      <a class="card" href="#"><span class="card-icon">📖</span><div class="card-category">Référence</div><div class="card-title">Glossaire</div><div class="card-desc">Tous les termes, noms et concepts propres à l'univers, classés alphabétiquement.</div><span class="card-count">0 termes</span></a>
+    </div>
   </div>
 
-  <section class="vignettes">
-    <a class="vignette" href="#"><span class="vignette-icon">🌍</span><div class="vignette-title">Le Monde</div><div class="vignette-desc">Terre d'Ailleurs, ses continents, ses régions, ses lieux emblématiques et les plans qui composent cet univers.</div><span class="vignette-count">0 articles</span></a>
-    <a class="vignette" href="#"><span class="vignette-icon">✨</span><div class="vignette-title">La Magie</div><div class="vignette-desc">Le système des lanternes, les sylphes, la Brume crépusculaire, les classes et les pouvoirs qui régissent Ailleurs.</div><span class="vignette-count">0 articles</span></a>
-    <a class="vignette" href="#"><span class="vignette-icon">🏛️</span><div class="vignette-title">Organisations</div><div class="vignette-desc">L'Ordre des Lanternes, les Ligues, les factions politiques et les institutions d'Ailleurs.</div><span class="vignette-count">0 articles</span></a>
-    <a class="vignette" href="#"><span class="vignette-icon">👤</span><div class="vignette-title">Personnages</div><div class="vignette-desc">Fiches complètes de tous les personnages — héros, antagonistes, figures historiques et créatures notables.</div><span class="vignette-count">0 articles</span></a>
-    <a class="vignette" href="#"><span class="vignette-icon">📜</span><div class="vignette-title">Histoire</div><div class="vignette-desc">La chronologie d'Ailleurs, les événements fondateurs, les guerres et les ères qui ont façonné le monde.</div><span class="vignette-count">0 articles</span></a>
-    <a class="vignette" href="#"><span class="vignette-icon">📰</span><div class="vignette-title">Journaux Fictifs</div><div class="vignette-desc">Articles de presse, éditos et reportages issus des journaux de Terre d'Ailleurs.</div><span class="vignette-count">0 articles</span></a>
-    <a class="vignette" href="#"><span class="vignette-icon">📖</span><div class="vignette-title">Glossaire</div><div class="vignette-desc">Tous les termes, noms et concepts propres à l'univers, classés par ordre alphabétique.</div><span class="vignette-count">0 termes</span></a>
-  </section>
+  <!-- FEATURED -->
+  <div class="featured">
+    <div class="featured-left">
+      <div class="tag">Article à la une</div>
+      <h3>Terre d'Ailleurs</h3>
+      <p>Monde originel des créatures fantastiques, redécouvert en 535 après J.-C. par Galaad du Lac et Merlin l'enchanteur. Composée de quatre continents aux paysages variés, séparés du Monde Commun par des portails que seuls les membres de l'Ordre peuvent traverser librement.</p>
+    </div>
+    <div class="featured-right">
+      <div class="mini-title">Accès rapide</div>
+      <a class="featured-link" href="#"><div class="fl-cat">Personnages</div><div class="fl-title">Chloé</div></a>
+      <a class="featured-link" href="#"><div class="fl-cat">Magie</div><div class="fl-title">Les Sylphes</div></a>
+      <a class="featured-link" href="#"><div class="fl-cat">Organisations</div><div class="fl-title">L'Ordre des Lanternes</div></a>
+      <a class="featured-link" href="#"><div class="fl-cat">Histoire</div><div class="fl-title">La Fondation</div></a>
+    </div>
+  </div>
 
-  <section class="featured-section">
-    <div class="section-label">Article à la une</div>
-    <a class="featured-card" href="#">
-      <div>
-        <div class="featured-tag">Le Monde</div>
-        <div class="featured-title">Terre d'Ailleurs</div>
-        <div class="featured-body">Monde originel des créatures fantastiques, redécouvert en 535 après J.-C. par Galaad du Lac et Merlin l'enchanteur. Composée de quatre continents aux paysages variés, séparés du Monde Commun par des portails que seuls les membres de l'Ordre peuvent traverser librement.</div>
-      </div>
-      <div class="featured-meta">Canon établi<br><br>Lire la fiche →</div>
-    </a>
-  </section>
+  <footer>L'Ordre des Lanternes — Archives Personnelles — Usage Privé</footer>
 </div>
 
 <script>
 const PASSWORD = "lanternes2025";
 const TOTAL = 8;
 let cur = 0, interval;
+let trailH=42, trailS=85, trailL=65, trailActive=true;
 
-// Couleur active du filament
-let trailH = 42, trailS = 85, trailL = 65;
-let trailActive = true;
-
-// Couleurs des lanternes LODL
 const PRESETS = [
-  { name: 'Or',      h: 42,  s: 85, l: 65 },
-  { name: 'Bleu',   h: 210, s: 90, l: 65 },
-  { name: 'Violet', h: 270, s: 80, l: 65 },
-  { name: 'Vert',   h: 140, s: 75, l: 55 },
-  { name: 'Rouge',  h: 0,   s: 85, l: 60 },
-  { name: 'Blanc',  h: 50,  s: 20, l: 95 },
-  { name: 'Cyan',   h: 185, s: 85, l: 60 },
-  { name: 'Rose',   h: 320, s: 80, l: 70 },
+  {name:'Or',h:42,s:85,l:65},{name:'Bleu',h:210,s:90,l:65},{name:'Violet',h:270,s:80,l:65},
+  {name:'Vert',h:140,s:75,l:55},{name:'Rouge',h:0,s:85,l:60},{name:'Blanc',h:50,s:20,l:95},
+  {name:'Cyan',h:185,s:85,l:60},{name:'Rose',h:320,s:80,l:70},
 ];
 
-// ── SLIDESHOW ──
 function initSlideshow() {
-  const dots = document.getElementById('slideDots');
-  for (let i = 0; i < TOTAL; i++) {
-    const d = document.createElement('div');
-    d.className = 'dot' + (i === 0 ? ' active' : '');
-    d.onclick = () => goTo(i);
+  const dots = document.getElementById('heroDots');
+  for (let i=0; i<TOTAL; i++) {
+    const d=document.createElement('div');
+    d.className='dot'+(i===0?' active':'');
+    d.onclick=()=>goTo(i);
     dots.appendChild(d);
   }
-  interval = setInterval(() => { cur = (cur+1)%TOTAL; update(); }, 5000);
+  interval=setInterval(()=>{cur=(cur+1)%TOTAL;update();},5000);
 }
-function goTo(n) { cur=n; update(); clearInterval(interval); interval=setInterval(()=>{cur=(cur+1)%TOTAL;update();},5000); }
-function update() {
-  document.getElementById('slidesTrack').style.transform = `translateX(-${cur*(100/TOTAL)}%)`;
-  document.querySelectorAll('.dot').forEach((d,i) => d.className='dot'+(i===cur?' active':''));
+function goTo(n){cur=n;update();clearInterval(interval);interval=setInterval(()=>{cur=(cur+1)%TOTAL;update();},5000);}
+function update(){
+  const pct=cur*(100/TOTAL);
+  document.getElementById('heroSlides').style.transform=`translateX(-${pct}%)`;
+  document.getElementById('gateSlides').style.transform=`translateX(-${pct}%)`;
+  document.querySelectorAll('.dot').forEach((d,i)=>d.className='dot'+(i===cur?' active':''));
 }
 
-// ── PASSWORD ──
-function checkPassword() {
-  const v = document.getElementById('pwd-input').value;
-  if (v === PASSWORD) {
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('wiki').style.display = 'block';
+function checkPassword(){
+  const v=document.getElementById('pwd-input').value;
+  if(v===PASSWORD){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('wiki').style.display='block';
     sessionStorage.setItem('lodl-auth','1');
   } else {
-    document.getElementById('gate-error').textContent = 'Mot de passe incorrect. Les archives restent scellées.';
-    document.getElementById('pwd-input').value = '';
+    document.getElementById('gate-error').textContent='Mot de passe incorrect. Les archives restent scellées.';
+    document.getElementById('pwd-input').value='';
     document.getElementById('pwd-input').focus();
   }
 }
-document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPassword(); });
-if (sessionStorage.getItem('lodl-auth')==='1') {
+document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
+if(sessionStorage.getItem('lodl-auth')==='1'){
   document.getElementById('gate').style.display='none';
   document.getElementById('wiki').style.display='block';
 }
 
-// ── CURSOR TRAIL ──
-(function() {
-  const canvas = document.getElementById('cursorCanvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  window.addEventListener('resize', ()=>{ canvas.width=window.innerWidth; canvas.height=window.innerHeight; });
-  const pts = [];
-  window.addEventListener('mousemove', e => {
-    if (!trailActive) return;
-    for (let i=0; i<4; i++) {
-      pts.push({ x:e.clientX+(Math.random()-.5)*12, y:e.clientY+(Math.random()-.5)*12, vx:(Math.random()-.5)*2.5, vy:(Math.random()-.5)*2.5-.8, life:1, size:Math.random()*3+1.5 });
-    }
+// Cursor
+(function(){
+  const canvas=document.getElementById('cursorCanvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+  const pts=[];
+  window.addEventListener('mousemove',e=>{
+    if(!trailActive)return;
+    for(let i=0;i<4;i++) pts.push({x:e.clientX+(Math.random()-.5)*12,y:e.clientY+(Math.random()-.5)*12,vx:(Math.random()-.5)*2.5,vy:(Math.random()-.5)*2.5-.8,life:1,size:Math.random()*3+1.5});
   });
-  (function loop() {
+  (function loop(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    if (trailActive) {
-      for (let i=pts.length-1; i>=0; i--) {
-        const p=pts[i];
-        p.x+=p.vx; p.y+=p.vy; p.life-=0.028; p.size*=0.975;
+    if(trailActive){
+      for(let i=pts.length-1;i>=0;i--){
+        const p=pts[i]; p.x+=p.vx; p.y+=p.vy; p.life-=0.028; p.size*=0.975;
         if(p.life<=0){pts.splice(i,1);continue;}
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
         ctx.fillStyle=`hsla(${trailH},${trailS}%,${trailL}%,${p.life*0.9})`;
-        ctx.shadowBlur=12;
-        ctx.shadowColor=`hsla(${trailH},100%,${trailL}%,${p.life})`;
+        ctx.shadowBlur=12; ctx.shadowColor=`hsla(${trailH},100%,${trailL}%,${p.life})`;
         ctx.fill();
       }
     }
@@ -364,84 +368,47 @@ if (sessionStorage.getItem('lodl-auth')==='1') {
   })();
 })();
 
-// ── LANTERNERIE PANEL ──
-function openLanternerie(e) { e.preventDefault(); document.getElementById('lanternerie-panel').classList.add('open'); }
-function closeLanternerie() { document.getElementById('lanternerie-panel').classList.remove('open'); }
+function openLanternerie(e){e.preventDefault();document.getElementById('lanternerie-panel').classList.add('open');}
+function closeLanternerie(){document.getElementById('lanternerie-panel').classList.remove('open');}
 
-// Color wheel
-(function() {
-  const canvas = document.getElementById('colorWheel');
-  const ctx = canvas.getContext('2d');
-  const cx = 90, cy = 90, r = 85;
-
-  function drawWheel() {
-    for (let angle=0; angle<360; angle++) {
-      const startAngle = (angle-1) * Math.PI/180;
-      const endAngle = (angle+1) * Math.PI/180;
-      const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
-      grad.addColorStop(0, 'white');
-      grad.addColorStop(1, `hsl(${angle},100%,50%)`);
-      ctx.beginPath();
-      ctx.moveTo(cx,cy);
-      ctx.arc(cx,cy,r,startAngle,endAngle);
-      ctx.closePath();
-      ctx.fillStyle=grad;
-      ctx.fill();
-    }
+(function(){
+  const canvas=document.getElementById('colorWheel');
+  const ctx=canvas.getContext('2d');
+  const cx=90,cy=90,r=85;
+  for(let a=0;a<360;a++){
+    const s=(a-1)*Math.PI/180, en=(a+1)*Math.PI/180;
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+    g.addColorStop(0,'white'); g.addColorStop(1,`hsl(${a},100%,50%)`);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,s,en); ctx.closePath();
+    ctx.fillStyle=g; ctx.fill();
   }
-  drawWheel();
-
-  function pickColor(e) {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left - cx;
-    const y = e.clientY - rect.top - cy;
-    const dist = Math.sqrt(x*x+y*y);
-    if (dist > r) return;
-    let angle = Math.atan2(y,x) * 180/Math.PI;
-    if (angle < 0) angle += 360;
-    trailH = Math.round(angle);
-    trailS = Math.round((dist/r)*85 + 15);
-    updatePreview();
-    clearPresetSelection();
+  function pick(e){
+    const rect=canvas.getBoundingClientRect();
+    const x=e.clientX-rect.left-cx, y=e.clientY-rect.top-cy;
+    const dist=Math.sqrt(x*x+y*y);
+    if(dist>r)return;
+    let a=Math.atan2(y,x)*180/Math.PI; if(a<0)a+=360;
+    trailH=Math.round(a); trailS=Math.round((dist/r)*85+15);
+    updatePreview(); clearPresets();
   }
-
-  canvas.addEventListener('mousedown', e => { pickColor(e); canvas.addEventListener('mousemove',pickColor); });
-  window.addEventListener('mouseup', () => canvas.removeEventListener('mousemove',pickColor));
+  canvas.addEventListener('mousedown',e=>{pick(e);canvas.addEventListener('mousemove',pick);});
+  window.addEventListener('mouseup',()=>canvas.removeEventListener('mousemove',pick));
 })();
 
-document.getElementById('brightnessSlider').addEventListener('input', function() {
-  trailL = parseInt(this.value);
-  updatePreview();
-});
+document.getElementById('brightnessSlider').addEventListener('input',function(){trailL=parseInt(this.value);updatePreview();});
+document.getElementById('trailToggle').addEventListener('change',function(){trailActive=this.checked;});
 
-document.getElementById('trailToggle').addEventListener('change', function() {
-  trailActive = this.checked;
-});
+function updatePreview(){document.getElementById('colorPreview').style.background=`hsl(${trailH},${trailS}%,${trailL}%)`;}
+function clearPresets(){document.querySelectorAll('.preset').forEach(p=>p.classList.remove('selected'));}
 
-function updatePreview() {
-  document.getElementById('colorPreview').style.background = `hsl(${trailH},${trailS}%,${trailL}%)`;
-}
-
-// Presets
-function clearPresetSelection() {
-  document.querySelectorAll('.preset').forEach(p => p.classList.remove('selected'));
-}
-
-(function buildPresets() {
-  const container = document.getElementById('presetColors');
-  PRESETS.forEach((p,i) => {
-    const el = document.createElement('div');
-    el.className = 'preset' + (i===0?' selected':'');
-    el.title = p.name;
-    el.style.background = `hsl(${p.h},${p.s}%,${p.l}%)`;
-    el.onclick = () => {
-      trailH=p.h; trailS=p.s; trailL=p.l;
-      document.getElementById('brightnessSlider').value = p.l;
-      updatePreview();
-      clearPresetSelection();
-      el.classList.add('selected');
-    };
-    container.appendChild(el);
+(function(){
+  const c=document.getElementById('presetColors');
+  PRESETS.forEach((p,i)=>{
+    const el=document.createElement('div');
+    el.className='preset'+(i===0?' selected':'');
+    el.title=p.name; el.style.background=`hsl(${p.h},${p.s}%,${p.l}%)`;
+    el.onclick=()=>{trailH=p.h;trailS=p.s;trailL=p.l;document.getElementById('brightnessSlider').value=p.l;updatePreview();clearPresets();el.classList.add('selected');};
+    c.appendChild(el);
   });
 })();
 
