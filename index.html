@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Ordre des Lanternes — Wiki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-dim: #8a6d2f;
+    --gold-bright: #f0c96a;
+    --ember: #e87040;
+    --dark-bg: #0a0805;
+    --panel-bg: #110e09;
+    --panel-border: #2a2218;
+    --text-main: #e8dfc8;
+    --text-muted: #8a7d65;
+    --text-dim: #4a4030;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark-bg);
+    color: var(--text-main);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ── PASSWORD GATE ── */
+  #gate {
+    position: fixed;
+    inset: 0;
+    background: var(--dark-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .gate-lantern {
+    font-size: 4rem;
+    animation: flicker 3s ease-in-out infinite;
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 12px #c9a84c88); }
+    50% { opacity: 0.85; filter: drop-shadow(0 0 6px #c9a84c44); }
+  }
+
+  .gate-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-align: center;
+  }
+
+  .gate-subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    font-style: italic;
+    text-align: center;
+  }
+
+  .gate-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .gate-input {
+    width: 100%;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 2px;
+    padding: 0.75rem 1.2rem;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    letter-spacing: 0.1em;
+    outline: none;
+    transition: border-color 0.3s;
+    text-align: center;
+  }
+
+  .gate-input:focus { border-color: var(--gold-dim); }
+
+  .gate-btn {
+    background: transparent;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    padding: 0.6rem 2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+  }
+
+  .gate-btn:hover {
+    background: rgba(201,168,76,0.08);
+    border-color: var(--gold);
+  }
+
+  .gate-error {
+    color: var(--ember);
+    font-size: 0.9rem;
+    font-style: italic;
+    min-height: 1.2em;
+  }
+
+  /* ── MAIN CONTENT ── */
+  #wiki { display: none; position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  header {
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--panel-border);
+    position: relative;
+  }
+
+  .header-ornament {
+    color: var(--gold-dim);
+    font-size: 1.2rem;
+    letter-spacing: 0.5em;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    line-height: 1.1;
+    text-shadow: 0 0 40px rgba(201,168,76,0.2);
+  }
+
+  .header-sub {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: var(--text-muted);
+    font-style: italic;
+    letter-spacing: 0.12em;
+    margin-top: 0.8rem;
+  }
+
+  .header-line {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    margin: 1.5rem auto 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 0 2rem;
+    border-bottom: 1px solid var(--panel-border);
+    overflow-x: auto;
+  }
+
+  nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 1rem 1.4rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+
+  nav a:hover { color: var(--gold); border-bottom-color: var(--gold-dim); }
+
+  /* ── SEARCH ── */
+  .search-bar {
+    max-width: 480px;
+    margin: 3rem auto 0;
+    padding: 0 2rem;
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 2px;
+    padding: 0.75rem 1rem 0.75rem 2.8rem;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    color: var(--text-main);
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  .search-input::placeholder { color: var(--text-dim); }
+  .search-input:focus { border-color: var(--gold-dim); }
+
+  .search-icon {
+    position: absolute;
+    left: 2.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 1rem;
+    pointer-events: none;
+  }
+
+  /* ── PORTAL INTRO ── */
+  .portal-intro {
+    text-align: center;
+    padding: 3rem 2rem 1rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .portal-intro p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.9;
+  }
+
+  /* ── VIGNETTES GRID ── */
+  .vignettes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5px;
+    padding: 3rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .vignette {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    padding: 2.5rem 2rem;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+  }
+
+  .vignette::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top left, rgba(201,168,76,0.05) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .vignette:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+  .vignette:hover::before { opacity: 1; }
+
+  .vignette-icon {
+    font-size: 2rem;
+    margin-bottom: 1.2rem;
+    display: block;
+    filter: grayscale(0.3);
+    transition: filter 0.3s;
+  }
+
+  .vignette:hover .vignette-icon { filter: grayscale(0) drop-shadow(0 0 8px rgba(201,168,76,0.4)); }
+
+  .vignette-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+  }
+
+  .vignette-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  .vignette-count {
+    position: absolute;
+    bottom: 1.2rem;
+    right: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── FEATURED ENTRY ── */
+  .featured-section {
+    padding: 2rem 3rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--panel-border);
+  }
+
+  .featured-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    padding: 2rem 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: start;
+    transition: border-color 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .featured-card:hover { border-color: var(--gold-dim); }
+
+  .featured-tag {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--ember);
+    text-transform: uppercase;
+    margin-bottom: 0.7rem;
+  }
+
+  .featured-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+
+  .featured-body {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-style: italic;
+    max-width: 600px;
+  }
+
+  .featured-meta {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.1em;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    margin-top: 4rem;
+    border-top: 1px solid var(--panel-border);
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    font-family: 'Cinzel', serif;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--dark-bg); }
+  ::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+  /* ── ANIMATED BG PARTICLES ── */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0;
+    animation: float-up linear infinite;
+  }
+
+  @keyframes float-up {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 0.4; }
+    90% { opacity: 0.1; }
+    100% { transform: translateY(-10vh) translateX(30px); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-lantern">🏮</div>
+  <div>
+    <div class="gate-title">L'Ordre des Lanternes</div>
+    <div class="gate-subtitle">Archives Secrètes — Accès Restreint</div>
+  </div>
+  <div class="gate-form">
+    <input type="password" class="gate-input" id="pwd-input" placeholder="Mot de passe" autofocus>
+    <button class="gate-btn" onclick="checkPassword()">Entrer</button>
+    <div class="gate-error" id="gate-error"></div>
+  </div>
+</div>
+
+<!-- WIKI MAIN -->
+<div id="wiki">
+
+  <header>
+    <span class="header-ornament">✦ ✦ ✦</span>
+    <h1>L'Ordre des Lanternes</h1>
+    <p class="header-sub">Archives de Terre d'Ailleurs — Wiki Personnel</p>
+    <div class="header-line"></div>
+  </header>
+
+  <nav>
+    <a href="#monde">Le Monde</a>
+    <a href="#magie">La Magie</a>
+    <a href="#organisations">Organisations</a>
+    <a href="#personnages">Personnages</a>
+    <a href="#histoire">Histoire</a>
+    <a href="#journaux">Journaux</a>
+    <a href="#glossaire">Glossaire</a>
+  </nav>
+
+  <div class="search-bar">
+    <span class="search-icon">⌕</span>
+    <input type="text" class="search-input" placeholder="Rechercher dans les archives…">
+  </div>
+
+  <div class="portal-intro">
+    <p>Bienvenue dans les archives secrètes de l'Ordre des Lanternes.<br>
+    Ce wiki est le grimoire personnel de l'univers de Terre d'Ailleurs.</p>
+  </div>
+
+  <!-- VIGNETTES -->
+  <section class="vignettes">
+
+    <a class="vignette" href="monde.html">
+      <span class="vignette-icon">🌍</span>
+      <div class="vignette-title">Le Monde</div>
+      <div class="vignette-desc">Terre d'Ailleurs, ses continents, ses régions, ses lieux emblématiques et les plans qui composent cet univers.</div>
+      <span class="vignette-count">0 articles</span>
+    </a>
+
+    <a class="vignette" href="magie.html">
+      <span class="vignette-icon">✨</span>
+      <div class="vignette-title">La Magie</div>
+      <div class="vignette-desc">Le système des lanternes, les sylphes, la Brume crépusculaire, les classes et les pouvoirs qui régissent Ailleurs.</div>
+      <span class="vignette-count">0 articles</span>
+    </a>
+
+    <a class="vignette" href="organisations.html">
+      <span class="vignette-icon">🏛️</span>
+      <div class="vignette-title">Organisations</div>
+      <div class="vignette-desc">L'Ordre des Lanternes, les Ligues, les factions politiques, les organisations secrètes et les institutions d'Ailleurs.</div>
+      <span class="vignette-count">0 articles</span>
+    </a>
+
+    <a class="vignette" href="personnages.html">
+      <span class="vignette-icon">👤</span>
+      <div class="vignette-title">Personnages</div>
+      <div class="vignette-desc">Fiches complètes de tous les personnages — héros, antagonistes, figures historiques et créatures notables.</div>
+      <span class="vignette-count">0 articles</span>
+    </a>
+
+    <a class="vignette" href="histoire.html">
+      <span class="vignette-icon">📜</span>
+      <div class="vignette-title">Histoire</div>
+      <div class="vignette-desc">La chronologie d'Ailleurs, les événements fondateurs, les guerres, les cataclysmes et les ères qui ont façonné le monde.</div>
+      <span class="vignette-count">0 articles</span>
+    </a>
+
+    <a class="vignette" href="journaux.html">
+      <span class="vignette-icon">📰</span>
+      <div class="vignette-title">Journaux Fictifs</div>
+      <div class="vignette-desc">Articles de presse, éditos et reportages issus des journaux de Terre d'Ailleurs — L'Ailleurs d'Entant, Nul Par Ailleurs…</div>
+      <span class="vignette-count">0 articles</span>
+    </a>
+
+    <a class="vignette" href="glossaire.html">
+      <span class="vignette-icon">📖</span>
+      <div class="vignette-title">Glossaire</div>
+      <div class="vignette-desc">Tous les termes, noms, concepts et mots propres à l'univers de Terre d'Ailleurs, classés par ordre alphabétique.</div>
+      <span class="vignette-count">0 termes</span>
+    </a>
+
+  </section>
+
+  <!-- FEATURED -->
+  <section class="featured-section">
+    <div class="section-label">Article à la une</div>
+    <a class="featured-card" href="monde.html">
+      <div>
+        <div class="featured-tag">Le Monde</div>
+        <div class="featured-title">Terre d'Ailleurs</div>
+        <div class="featured-body">Monde originel des créatures fantastiques, redécouvert en 535 après J.-C. par Galaad du Lac et Merlin l'enchanteur. Terre d'Ailleurs est composée de quatre continents aux paysages variés, séparés du Monde Commun par des portails que seuls les membres de l'Ordre peuvent traverser librement.</div>
+      </div>
+      <div class="featured-meta">
+        Canon établi<br><br>
+        Lire la fiche →
+      </div>
+    </a>
+  </section>
+
+  <footer>
+    L'Ordre des Lanternes — Archives Personnelles — Usage Privé
+  </footer>
+
+</div>
+
+<script>
+  const PASSWORD = "lanternes2025";
+
+  function checkPassword() {
+    const val = document.getElementById('pwd-input').value;
+    const err = document.getElementById('gate-error');
+    if (val === PASSWORD) {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('wiki').style.display = 'block';
+      sessionStorage.setItem('lodl-auth', '1');
+      initParticles();
+    } else {
+      err.textContent = 'Mot de passe incorrect. Les archives restent scellées.';
+      document.getElementById('pwd-input').value = '';
+      document.getElementById('pwd-input').focus();
+    }
+  }
+
+  document.getElementById('pwd-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  if (sessionStorage.getItem('lodl-auth') === '1') {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('wiki').style.display = 'block';
+    initParticles();
+  }
+
+  function initParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (8 + Math.random() * 12) + 's';
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      p.style.opacity = Math.random() * 0.4;
+      container.appendChild(p);
+    }
+  }
+</script>
+</body>
+</html>
