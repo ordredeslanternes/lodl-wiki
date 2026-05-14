@@ -15,25 +15,25 @@
     --dark: #0d0b09;
     --dark2: #151210;
     --dark3: #1c1813;
-    --border: rgba(201,168,76,0.18);
-    --text: #ffffff;
-    --text-muted: rgba(255,255,255,0.65);
-    --text-dim: rgba(255,255,255,0.35);
+    --border: rgba(201,168,76,0.2);
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background: var(--dark); color: #ffffff; font-family: 'Crimson Pro', serif; min-height:100vh; overflow-x:hidden; }
+  html { scroll-behavior: smooth; }
+  body { background:var(--dark); color:#fff; font-family:'Crimson Pro',serif; min-height:100vh; overflow-x:hidden; }
 
-  /* ── CURSOR ── */
   #cursorCanvas { position:fixed; inset:0; pointer-events:none; z-index:9999; }
 
   /* ── GATE ── */
   #gate { position:fixed; inset:0; z-index:500; display:flex; align-items:center; justify-content:center; }
-  .gate-bg { position:absolute; inset:0; background:rgba(0,0,0,0.6); }
-  .gate-card { position:relative; background:rgba(13,11,9,0.92); border:1px solid var(--border); padding:3rem 3.5rem; display:flex; flex-direction:column; align-items:center; gap:1.8rem; max-width:420px; width:90%; }
+  .gate-bg { position:absolute; inset:0; background:rgba(0,0,0,0.55); }
+  .gate-slideshow { position:absolute; inset:0; overflow:hidden; }
+  .gate-track { display:flex; height:100%; transition:transform 1.1s cubic-bezier(0.77,0,0.175,1); }
+  .gate-slide { min-width:100%; height:100%; background-size:cover; background-position:center; flex-shrink:0; }
+  .gate-card { position:relative; background:rgba(13,11,9,0.9); border:1px solid var(--border); padding:3rem 3.5rem; display:flex; flex-direction:column; align-items:center; gap:1.8rem; max-width:420px; width:90%; }
   .gate-lantern { font-size:3.5rem; animation:flicker 3s ease-in-out infinite; }
-  @keyframes flicker { 0%,100%{filter:drop-shadow(0 0 20px rgba(201,168,76,0.7));} 50%{filter:drop-shadow(0 0 6px rgba(201,168,76,0.15));} }
+  @keyframes flicker { 0%,100%{filter:drop-shadow(0 0 20px rgba(201,168,76,0.7));}50%{filter:drop-shadow(0 0 6px rgba(201,168,76,0.15));} }
   .gate-title { font-family:'Cinzel',serif; font-size:clamp(1.3rem,3vw,1.9rem); color:var(--gold); letter-spacing:0.15em; text-align:center; }
-  .gate-subtitle { font-size:0.95rem; color:rgba(255,255,255,0.85); letter-spacing:0.1em; font-style:italic; text-align:center; margin-top:-0.8rem; }
+  .gate-subtitle { font-size:0.95rem; color:rgba(255,255,255,0.6); letter-spacing:0.1em; font-style:italic; text-align:center; margin-top:-0.8rem; }
   .gate-divider { width:80px; height:1px; background:linear-gradient(90deg,transparent,var(--gold-dim),transparent); }
   .gate-form { display:flex; flex-direction:column; align-items:center; gap:1rem; width:100%; }
   .gate-input { width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(201,168,76,0.3); border-radius:2px; padding:0.85rem 1.2rem; font-family:'Crimson Pro',serif; font-size:1.1rem; color:#fff; letter-spacing:0.15em; outline:none; transition:border-color 0.3s; text-align:center; }
@@ -42,116 +42,102 @@
   .gate-btn { background:transparent; border:1px solid var(--gold-dim); color:var(--gold); font-family:'Cinzel',serif; font-size:0.82rem; letter-spacing:0.25em; padding:0.75rem 2.5rem; cursor:pointer; transition:all 0.3s; text-transform:uppercase; }
   .gate-btn:hover { background:rgba(201,168,76,0.12); border-color:var(--gold); }
   .gate-error { color:#e87040; font-size:0.88rem; font-style:italic; min-height:1.2em; text-align:center; }
-  /* Gate slideshow bg */
-  .gate-slideshow { position:absolute; inset:0; overflow:hidden; }
-  .gate-slides { display:flex; height:100%; width:calc(100% * 8); transition:transform 1.2s cubic-bezier(0.77,0,0.175,1); }
-  .gate-slide { width:calc(100% / 8); height:100%; flex-shrink:0; background-size:cover; background-position:center; }
-  .gate-slide:nth-child(1){background-image:url('diapo_accueil/1.png');}
-  .gate-slide:nth-child(2){background-image:url('diapo_accueil/2.png');}
-  .gate-slide:nth-child(3){background-image:url('diapo_accueil/3.png');}
-  .gate-slide:nth-child(4){background-image:url('diapo_accueil/4.png');}
-  .gate-slide:nth-child(5){background-image:url('diapo_accueil/5.png');}
-  .gate-slide:nth-child(6){background-image:url('diapo_accueil/6.png');}
-  .gate-slide:nth-child(7){background-image:url('diapo_accueil/7.png');}
-  .gate-slide:nth-child(8){background-image:url('diapo_accueil/8.png');}
 
   /* ── WIKI ── */
   #wiki { display:none; }
 
-  /* ── TOP BAR (HP style) ── */
-  .topbar { background:var(--dark); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 2rem; height:64px; position:sticky; top:0; z-index:100; }
-  .topbar-logo { font-family:'Cinzel',serif; font-size:1.4rem; color:var(--gold); letter-spacing:0.15em; text-decoration:none; white-space:nowrap; }
-  .topbar-logo span { font-size:0.75rem; display:block; letter-spacing:0.3em; color:rgba(255,255,255,0.55); margin-top:-2px; }
-  .topbar-search { display:flex; align-items:center; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:2px; padding:0.4rem 0.9rem; gap:0.5rem; }
+  /* ── TOP BAR ── */
+  .topbar { background:var(--dark); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; height:64px; position:sticky; top:0; z-index:100; }
+  .topbar-logo { font-family:'Cinzel',serif; font-size:1.35rem; color:var(--gold); letter-spacing:0.15em; text-decoration:none; }
+  .topbar-logo span { font-size:0.7rem; display:block; letter-spacing:0.3em; color:rgba(255,255,255,0.4); margin-top:-2px; }
+  .topbar-search { display:flex; align-items:center; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:2px; padding:0.4rem 0.9rem; gap:0.5rem; }
   .topbar-search input { background:none; border:none; outline:none; color:#fff; font-family:'Crimson Pro',serif; font-size:0.95rem; width:180px; }
-  .topbar-search input::placeholder { color:rgba(255,255,255,0.55); }
-  .topbar-search span { color:rgba(255,255,255,0.55); font-size:1rem; }
+  .topbar-search input::placeholder { color:rgba(255,255,255,0.3); }
 
-  /* ── NAV BAR ── */
+  /* ── NAVBAR ── */
   .navbar { background:var(--dark2); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow-x:auto; position:sticky; top:64px; z-index:99; }
-  .navbar a { color:rgba(255,255,255,0.85); text-decoration:none; font-family:'Cinzel',serif; font-size:0.78rem; letter-spacing:0.2em; text-transform:uppercase; padding:1rem 1.3rem; border-bottom:2px solid transparent; transition:all 0.25s; white-space:nowrap; display:inline-block; }
+  .navbar a { color:rgba(255,255,255,0.9); font-weight:600; text-decoration:none; font-family:'Cinzel',serif; font-size:0.82rem; letter-spacing:0.2em; text-transform:uppercase; padding:1rem 1.4rem; border-bottom:2px solid transparent; transition:all 0.25s; white-space:nowrap; display:inline-block; }
   .navbar a:hover { color:#fff; border-bottom-color:var(--gold); }
-  .navbar a.lanternerie { color:rgba(255,255,255,0.85); }
-  .navbar a.lanternerie:hover { color:#fff; border-bottom-color:var(--gold); }
 
-  /* ── HERO (slideshow) ── */
-  .hero { position:relative; height:85vh; min-height:520px; overflow:hidden; }
-  .hero-slides { display:flex; height:100%; width:calc(100% * 8); transition:transform 1.2s cubic-bezier(0.77,0,0.175,1); }
-  .hero-slide { width:calc(100% / 8); height:100%; flex-shrink:0; background-size:cover; background-position:center; }
-  .hero-slide:nth-child(1){background-image:url('diapo_accueil/1.png');}
-  .hero-slide:nth-child(2){background-image:url('diapo_accueil/2.png');}
-  .hero-slide:nth-child(3){background-image:url('diapo_accueil/3.png');}
-  .hero-slide:nth-child(4){background-image:url('diapo_accueil/4.png');}
-  .hero-slide:nth-child(5){background-image:url('diapo_accueil/5.png');}
-  .hero-slide:nth-child(6){background-image:url('diapo_accueil/6.png');}
-  .hero-slide:nth-child(7){background-image:url('diapo_accueil/7.png');}
-  .hero-slide:nth-child(8){background-image:url('diapo_accueil/8.png');}
-  .hero-overlay { position:absolute; inset:0; background:linear-gradient(to right, rgba(13,11,9,0.75) 0%, rgba(13,11,9,0.2) 50%, transparent 100%); z-index:1; }
-  .hero-overlay-bottom { position:absolute; bottom:0; left:0; right:0; height:200px; background:linear-gradient(to top, var(--dark), transparent); z-index:2; }
-  .hero-content { position:absolute; bottom:0; left:0; z-index:3; padding:3rem 4rem; max-width:680px; }
+  /* ── HERO (infinite carousel) ── */
+  .hero { position:relative; height:88vh; min-height:540px; overflow:hidden; }
+  .hero-track { display:flex; height:100%; transition:transform 1.1s cubic-bezier(0.77,0,0.175,1); }
+  .hero-slide { min-width:100%; height:100%; flex-shrink:0; background-size:cover; background-position:center; }
+  .hero-overlay { position:absolute; inset:0; background:linear-gradient(to right,rgba(13,11,9,0.8) 0%,rgba(13,11,9,0.25) 55%,transparent 100%); z-index:1; }
+  .hero-overlay-bottom { position:absolute; bottom:0; left:0; right:0; height:220px; background:linear-gradient(to top,var(--dark),transparent); z-index:2; }
+  .hero-content { position:absolute; bottom:0; left:0; z-index:3; padding:3.5rem 5rem; max-width:700px; }
   .hero-tag { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.35em; color:var(--gold); text-transform:uppercase; margin-bottom:1rem; }
-  .hero-title { font-family:'Cinzel',serif; font-size:clamp(2.5rem,6vw,4.5rem); font-weight:700; color:#fff; line-height:1.05; letter-spacing:0.05em; text-shadow:0 2px 20px rgba(0,0,0,0.8); margin-bottom:1rem; }
-  .hero-sub { font-size:1.2rem; color:rgba(255,255,255,0.85); font-style:italic; line-height:1.7; text-shadow:0 1px 8px rgba(0,0,0,0.9); margin-bottom:2rem; }
-  .hero-btn { display:inline-block; background:var(--gold); color:#0d0b09; font-family:'Cinzel',serif; font-size:0.78rem; letter-spacing:0.25em; text-transform:uppercase; padding:0.8rem 2rem; text-decoration:none; transition:all 0.3s; font-weight:600; }
+  .hero-title { font-family:'Cinzel',serif; font-size:clamp(2.8rem,6vw,5rem); font-weight:700; color:#fff; line-height:1.02; letter-spacing:0.04em; text-shadow:0 2px 24px rgba(0,0,0,0.9); margin-bottom:1.2rem; }
+  .hero-sub { font-size:1.25rem; color:rgba(255,255,255,0.82); font-style:italic; line-height:1.7; text-shadow:0 1px 10px rgba(0,0,0,0.9); margin-bottom:2rem; }
+  .hero-btn { display:inline-block; background:var(--gold); color:#0d0b09; font-family:'Cinzel',serif; font-size:0.78rem; letter-spacing:0.25em; text-transform:uppercase; padding:0.85rem 2.2rem; text-decoration:none; transition:all 0.3s; font-weight:700; }
   .hero-btn:hover { background:var(--gold-bright); }
-
-  /* Slide dots */
-  .hero-dots { position:absolute; bottom:1.5rem; right:2rem; display:flex; gap:8px; z-index:4; }
+  .hero-dots { position:absolute; bottom:1.8rem; right:2.5rem; display:flex; gap:8px; z-index:4; }
   .dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.5); transition:all 0.4s; cursor:pointer; }
   .dot.active { background:var(--gold); width:22px; border-radius:3px; }
 
-  /* ── CONTENT SECTION ── */
-  .content { background:var(--dark); padding:4rem 4rem; }
-  .section-header { display:flex; align-items:center; gap:1.5rem; margin-bottom:2.5rem; }
-  .section-header h2 { font-family:'Cinzel',serif; font-size:1.1rem; color:var(--gold); letter-spacing:0.25em; text-transform:uppercase; white-space:nowrap; }
-  .section-header::after { content:''; flex:1; height:1px; background:var(--border); }
+  /* ── BANDEAUX ── */
+  .banner {
+    position:relative;
+    height:480px;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    border-top:1px solid var(--border);
+  }
+  .banner-bg {
+    position:absolute;
+    inset:0;
+    background-size:cover;
+    background-position:center;
+    transition:transform 0.6s ease;
+  }
+  .banner:hover .banner-bg { transform:scale(1.03); }
+  .banner-overlay-left { position:absolute; inset:0; background:linear-gradient(to right, rgba(13,11,9,0.92) 0%, rgba(13,11,9,0.7) 40%, rgba(13,11,9,0.15) 75%, transparent 100%); z-index:1; }
+  .banner-overlay-right { position:absolute; inset:0; background:linear-gradient(to left, rgba(13,11,9,0.92) 0%, rgba(13,11,9,0.7) 40%, rgba(13,11,9,0.15) 75%, transparent 100%); z-index:1; }
+  .banner-content { position:relative; z-index:2; padding:0 5rem; max-width:580px; }
+  .banner.right .banner-content { margin-left:auto; text-align:right; }
+  .banner-num { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.4em; color:var(--gold); text-transform:uppercase; margin-bottom:0.8rem; opacity:0.8; }
+  .banner-title { font-family:'Cinzel',serif; font-size:clamp(2rem,4vw,3.2rem); font-weight:700; color:#fff; line-height:1.1; margin-bottom:1rem; letter-spacing:0.05em; }
+  .banner-desc { font-size:1.15rem; color:rgba(255,255,255,0.8); font-style:italic; line-height:1.8; margin-bottom:1.8rem; }
+  .banner-btn { display:inline-block; border:1px solid var(--gold-dim); color:var(--gold); font-family:'Cinzel',serif; font-size:0.75rem; letter-spacing:0.25em; text-transform:uppercase; padding:0.75rem 2rem; text-decoration:none; transition:all 0.3s; }
+  .banner-btn:hover { background:rgba(201,168,76,0.12); border-color:var(--gold); color:var(--gold-bright); }
 
-  /* ── CARDS GRID ── */
-  .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1px; background:var(--border); margin-bottom:1px; }
-  .card { background:var(--dark2); padding:2rem 2rem 2.5rem; text-decoration:none; display:block; transition:background 0.25s; position:relative; overflow:hidden; }
-  .card::before { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--gold); transform:scaleX(0); transition:transform 0.3s; transform-origin:left; }
-  .card:hover { background:var(--dark3); }
-  .card:hover::before { transform:scaleX(1); }
-  .card-icon { font-size:2.2rem; margin-bottom:1.2rem; display:block; }
-  .card-category { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; margin-bottom:0.6rem; }
-  .card-title { font-family:'Cinzel',serif; font-size:1.2rem; color:#fff; margin-bottom:0.8rem; letter-spacing:0.05em; }
-  .card-desc { font-size:1.05rem; color:rgba(255,255,255,0.85); line-height:1.7; font-style:italic; }
-  .card-count { position:absolute; top:1.5rem; right:1.5rem; font-size:0.75rem; color:rgba(255,255,255,0.55); font-family:'Cinzel',serif; }
+  /* Placeholder quand pas d'image */
+  .banner-bg.placeholder { background:linear-gradient(135deg, #1c1813 0%, #2a2218 50%, #1c1813 100%); }
 
   /* ── FEATURED ── */
-  .featured { background:var(--dark2); border-top:1px solid var(--border); padding:3rem 4rem; display:grid; grid-template-columns:1fr 280px; gap:3rem; align-items:start; }
+  .featured { background:var(--dark2); border-top:1px solid var(--border); padding:4rem 5rem; display:grid; grid-template-columns:1fr 300px; gap:4rem; align-items:start; }
   .featured-left .tag { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.3em; color:var(--ember); text-transform:uppercase; margin-bottom:0.8rem; }
-  .featured-left h3 { font-family:'Cinzel',serif; font-size:2rem; color:var(--gold); margin-bottom:1rem; }
-  .featured-left p { font-size:1.15rem; color:rgba(255,255,255,0.85); line-height:1.9; font-style:italic; }
+  .featured-left h3 { font-family:'Cinzel',serif; font-size:2rem; color:var(--gold); margin-bottom:1.2rem; }
+  .featured-left p { font-size:1.15rem; color:rgba(255,255,255,0.82); line-height:1.9; font-style:italic; }
   .featured-right { border-left:1px solid var(--border); padding-left:2.5rem; }
-  .featured-right .mini-title { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.25em; color:rgba(255,255,255,0.55); text-transform:uppercase; margin-bottom:1.5rem; }
+  .featured-right .mini-title { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.25em; color:rgba(255,255,255,0.4); text-transform:uppercase; margin-bottom:1.5rem; }
   .featured-link { display:block; padding:1rem 0; border-bottom:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s; }
   .featured-link:hover { padding-left:0.5rem; }
   .featured-link .fl-cat { font-size:0.72rem; color:var(--gold); font-family:'Cinzel',serif; letter-spacing:0.15em; }
-  .featured-link .fl-title { font-size:1rem; color:#fff; margin-top:0.2rem; }
+  .featured-link .fl-title { font-size:1.05rem; color:#fff; margin-top:0.2rem; }
 
-  /* ── FOOTER ── */
-  footer { background:var(--dark); border-top:1px solid var(--border); text-align:center; padding:2.5rem; color:rgba(255,255,255,0.55); font-size:0.85rem; letter-spacing:0.12em; font-family:'Cinzel',serif; }
+  footer { background:var(--dark); border-top:1px solid var(--border); text-align:center; padding:2.5rem; color:rgba(255,255,255,0.3); font-size:0.82rem; letter-spacing:0.12em; font-family:'Cinzel',serif; }
 
   /* ── LANTERNERIE PANEL ── */
-  #lanternerie-panel { display:none; position:fixed; top:0; right:0; bottom:0; width:320px; background:rgba(13,11,9,0.97); border-left:1px solid var(--border); z-index:200; padding:2.5rem 2rem; flex-direction:column; gap:2rem; overflow-y:auto; }
+  #lanternerie-panel { display:none; position:fixed; top:0; right:0; bottom:0; width:320px; background:rgba(13,11,9,0.98); border-left:1px solid var(--border); z-index:200; padding:2.5rem 2rem; flex-direction:column; gap:2rem; overflow-y:auto; }
   #lanternerie-panel.open { display:flex; }
   .panel-title { font-family:'Cinzel',serif; font-size:1rem; color:var(--gold); letter-spacing:0.2em; text-transform:uppercase; }
-  .panel-close { position:absolute; top:1.5rem; right:1.5rem; background:none; border:none; color:rgba(255,255,255,0.55); font-size:1.4rem; cursor:pointer; transition:color 0.2s; }
+  .panel-close { position:absolute; top:1.5rem; right:1.5rem; background:none; border:none; color:rgba(255,255,255,0.4); font-size:1.4rem; cursor:pointer; transition:color 0.2s; }
   .panel-close:hover { color:#fff; }
   .panel-section { display:flex; flex-direction:column; gap:0.8rem; }
-  .panel-label { font-size:0.72rem; color:rgba(255,255,255,0.55); letter-spacing:0.15em; font-family:'Cinzel',serif; text-transform:uppercase; }
+  .panel-label { font-size:0.72rem; color:rgba(255,255,255,0.4); letter-spacing:0.15em; font-family:'Cinzel',serif; text-transform:uppercase; }
   .color-wheel-wrap { display:flex; flex-direction:column; align-items:center; gap:1rem; }
   #colorWheel { width:180px; height:180px; border-radius:50%; cursor:crosshair; border:2px solid var(--border); }
   .brightness-row { display:flex; align-items:center; gap:0.8rem; width:100%; }
-  .brightness-row label { font-size:0.72rem; color:rgba(255,255,255,0.55); font-family:'Cinzel',serif; white-space:nowrap; }
+  .brightness-row label { font-size:0.72rem; color:rgba(255,255,255,0.4); font-family:'Cinzel',serif; white-space:nowrap; }
   #brightnessSlider { flex:1; accent-color:var(--gold); }
   .color-preview { width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,0.15); flex-shrink:0; }
   .preset-colors { display:flex; gap:10px; flex-wrap:wrap; }
   .preset { width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.2s; }
   .preset:hover,.preset.selected { border-color:#fff; transform:scale(1.15); }
   .toggle-row { display:flex; align-items:center; justify-content:space-between; }
-  .toggle-label { font-size:1rem; color:rgba(255,255,255,0.85); }
+  .toggle-label { font-size:1rem; color:rgba(255,255,255,0.8); }
   .toggle { position:relative; width:44px; height:24px; }
   .toggle input { opacity:0; width:0; height:0; }
   .toggle-slider { position:absolute; inset:0; background:rgba(255,255,255,0.15); border-radius:12px; cursor:pointer; transition:background 0.3s; }
@@ -165,24 +151,26 @@
 </style>
 </head>
 <body>
-
 <canvas id="cursorCanvas"></canvas>
 
 <!-- GATE -->
 <div id="gate">
-  <div class="gate-slideshow">
-    <div class="gate-slides" id="gateSlides">
-      <div class="gate-slide"></div><div class="gate-slide"></div><div class="gate-slide"></div><div class="gate-slide"></div>
-      <div class="gate-slide"></div><div class="gate-slide"></div><div class="gate-slide"></div><div class="gate-slide"></div>
-    </div>
-  </div>
+  <div class="gate-slideshow"><div class="gate-track" id="gateTrack">
+    <div class="gate-slide" style="background-image:url('diapo_accueil/1.png')"></div>
+    <div class="gate-slide" style="background-image:url('diapo_accueil/2.png')"></div>
+    <div class="gate-slide" style="background-image:url('diapo_accueil/3.png')"></div>
+    <div class="gate-slide" style="background-image:url('diapo_accueil/4.png')"></div>
+    <div class="gate-slide" style="background-image:url('diapo_accueil/5.png')"></div>
+    <div class="gate-slide" style="background-image:url('diapo_accueil/6.png')"></div>
+    <div class="gate-slide" style="background-image:url('diapo_accueil/7.png')"></div>
+    <div class="gate-slide" style="background-image:url('diapo_accueil/8.png')"></div>
+    <!-- Clone slide 1 for infinite loop -->
+    <div class="gate-slide" style="background-image:url('diapo_accueil/1.png')"></div>
+  </div></div>
   <div class="gate-bg"></div>
   <div class="gate-card">
     <div class="gate-lantern">🏮</div>
-    <div>
-      <div class="gate-title">L'Ordre des Lanternes</div>
-      <div class="gate-subtitle">Archives Secrètes — Accès Restreint</div>
-    </div>
+    <div><div class="gate-title">L'Ordre des Lanternes</div><div class="gate-subtitle">Archives Secrètes — Accès Restreint</div></div>
     <div class="gate-divider"></div>
     <div class="gate-form">
       <input type="password" class="gate-input" id="pwd-input" placeholder="Mot de passe" autofocus>
@@ -192,7 +180,7 @@
   </div>
 </div>
 
-<!-- LANTERNERIE PANEL -->
+<!-- LANTERNERIE -->
 <div id="lanternerie-panel">
   <button class="panel-close" onclick="closeLanternerie()">✕</button>
   <div class="panel-title">🏮 La Lanternerie</div>
@@ -222,32 +210,33 @@
 <!-- WIKI -->
 <div id="wiki">
 
-  <!-- TOP BAR -->
   <div class="topbar">
     <a class="topbar-logo" href="#">L'Ordre des Lanternes<span>Archives de Terre d'Ailleurs</span></a>
-    <div class="topbar-search">
-      <span>⌕</span>
-      <input type="text" placeholder="Rechercher…">
-    </div>
+    <div class="topbar-search"><span>⌕</span><input type="text" placeholder="Rechercher…"></div>
   </div>
 
-  <!-- NAV -->
   <nav class="navbar">
-    <a href="#">Le Monde</a>
-    <a href="#">La Magie</a>
-    <a href="#">Organisations</a>
-    <a href="#">Personnages</a>
-    <a href="#">Histoire</a>
-    <a href="#">Journaux</a>
-    <a href="#">Glossaire</a>
-    <a href="#" class="lanternerie" onclick="openLanternerie(event)">🏮 Lanternerie</a>
+    <a href="#section-monde">Le Monde</a>
+    <a href="#section-histoire">L'Histoire</a>
+    <a href="#section-organisations">Les Organisations</a>
+    <a href="#section-personnages">Les Personnages</a>
+    <a href="#section-journaux">Journaux & Glossaire</a>
+    <a href="#" onclick="openLanternerie(event)">🏮 Lanternerie</a>
   </nav>
 
-  <!-- HERO SLIDESHOW -->
+  <!-- HERO -->
   <div class="hero">
-    <div class="hero-slides" id="heroSlides">
-      <div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div>
-      <div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div>
+    <div class="hero-track" id="heroTrack">
+      <div class="hero-slide" style="background-image:url('diapo_accueil/1.png')"></div>
+      <div class="hero-slide" style="background-image:url('diapo_accueil/2.png')"></div>
+      <div class="hero-slide" style="background-image:url('diapo_accueil/3.png')"></div>
+      <div class="hero-slide" style="background-image:url('diapo_accueil/4.png')"></div>
+      <div class="hero-slide" style="background-image:url('diapo_accueil/5.png')"></div>
+      <div class="hero-slide" style="background-image:url('diapo_accueil/6.png')"></div>
+      <div class="hero-slide" style="background-image:url('diapo_accueil/7.png')"></div>
+      <div class="hero-slide" style="background-image:url('diapo_accueil/8.png')"></div>
+      <!-- Clone slide 1 -->
+      <div class="hero-slide" style="background-image:url('diapo_accueil/1.png')"></div>
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-overlay-bottom"></div>
@@ -255,22 +244,68 @@
       <div class="hero-tag">Archives Secrètes — Terre d'Ailleurs</div>
       <div class="hero-title">L'Ordre des<br>Lanternes</div>
       <div class="hero-sub">Un monde où les sylphes vivent dans les lanternes,<br>et où les lanterneurs gardent l'équilibre entre deux mondes.</div>
-      <a href="#" class="hero-btn">Explorer les archives</a>
+      <a href="#section-monde" class="hero-btn">Explorer les archives</a>
     </div>
     <div class="hero-dots" id="heroDots"></div>
   </div>
 
-  <!-- CONTENT -->
-  <div class="content">
-    <div class="section-header"><h2>Explorer l'univers</h2></div>
-    <div class="cards">
-      <a class="card" href="#"><span class="card-icon">🌍</span><div class="card-category">Géographie</div><div class="card-title">Le Monde</div><div class="card-desc">Terre d'Ailleurs, ses continents, ses régions et les plans qui composent cet univers.</div><span class="card-count">0 articles</span></a>
-      <a class="card" href="#"><span class="card-icon">✨</span><div class="card-category">Système</div><div class="card-title">La Magie</div><div class="card-desc">Le système des lanternes, les sylphes, la Brume crépusculaire et les classes de l'Ordre.</div><span class="card-count">0 articles</span></a>
-      <a class="card" href="#"><span class="card-icon">🏛️</span><div class="card-category">Politique</div><div class="card-title">Organisations</div><div class="card-desc">L'Ordre des Lanternes, les Ligues, les factions politiques et les institutions d'Ailleurs.</div><span class="card-count">0 articles</span></a>
-      <a class="card" href="#"><span class="card-icon">👤</span><div class="card-category">Personnages</div><div class="card-title">Fiches</div><div class="card-desc">Héros, antagonistes, figures historiques et créatures notables de l'univers.</div><span class="card-count">0 articles</span></a>
-      <a class="card" href="#"><span class="card-icon">📜</span><div class="card-category">Chronologie</div><div class="card-title">Histoire</div><div class="card-desc">Les événements fondateurs, les guerres et les ères qui ont façonné Terre d'Ailleurs.</div><span class="card-count">0 articles</span></a>
-      <a class="card" href="#"><span class="card-icon">📰</span><div class="card-category">Lore</div><div class="card-title">Journaux Fictifs</div><div class="card-desc">Articles de presse et reportages issus des journaux de Terre d'Ailleurs.</div><span class="card-count">0 articles</span></a>
-      <a class="card" href="#"><span class="card-icon">📖</span><div class="card-category">Référence</div><div class="card-title">Glossaire</div><div class="card-desc">Tous les termes, noms et concepts propres à l'univers, classés alphabétiquement.</div><span class="card-count">0 termes</span></a>
+  <!-- BANDEAU 1 — LE MONDE -->
+  <div class="banner" id="section-monde">
+    <div class="banner-bg placeholder" style="background-image:url('bandeaux/monde.png')"></div>
+    <div class="banner-overlay-left"></div>
+    <div class="banner-content">
+      <div class="banner-num">01 — Géographie</div>
+      <div class="banner-title">Le Monde</div>
+      <div class="banner-desc">Terre d'Ailleurs et ses quatre continents, ses royaumes anciens, ses portails entre les mondes et les peuples fantastiques qui les habitent.</div>
+      <a href="#" class="banner-btn">Consulter les cartes →</a>
+    </div>
+  </div>
+
+  <!-- BANDEAU 2 — L'HISTOIRE -->
+  <div class="banner right" id="section-histoire">
+    <div class="banner-bg placeholder" style="background-image:url('bandeaux/histoire.png')"></div>
+    <div class="banner-overlay-right"></div>
+    <div class="banner-content">
+      <div class="banner-num">02 — Chronologie</div>
+      <div class="banner-title">L'Histoire</div>
+      <div class="banner-desc">De la fondation de l'Ordre en 535 à nos jours — guerres, cataclysmes, figures fondatrices et événements qui ont forgé Terre d'Ailleurs.</div>
+      <a href="#" class="banner-btn">Lire la chronologie →</a>
+    </div>
+  </div>
+
+  <!-- BANDEAU 3 — ORGANISATIONS -->
+  <div class="banner" id="section-organisations">
+    <div class="banner-bg placeholder" style="background-image:url('bandeaux/organisations.png')"></div>
+    <div class="banner-overlay-left"></div>
+    <div class="banner-content">
+      <div class="banner-num">03 — Politique</div>
+      <div class="banner-title">Les Organisations</div>
+      <div class="banner-desc">L'Ordre des Lanternes, les Ligues, les factions rivales, les institutions secrètes et les pouvoirs qui gouvernent Ailleurs dans l'ombre.</div>
+      <a href="#" class="banner-btn">Explorer les factions →</a>
+    </div>
+  </div>
+
+  <!-- BANDEAU 4 — PERSONNAGES -->
+  <div class="banner right" id="section-personnages">
+    <div class="banner-bg placeholder" style="background-image:url('bandeaux/personnages.png')"></div>
+    <div class="banner-overlay-right"></div>
+    <div class="banner-content">
+      <div class="banner-num">04 — Fiches</div>
+      <div class="banner-title">Les Personnages</div>
+      <div class="banner-desc">Héros, antagonistes, figures historiques, créatures notables — chaque personnage de l'univers documenté avec précision.</div>
+      <a href="#" class="banner-btn">Voir les fiches →</a>
+    </div>
+  </div>
+
+  <!-- BANDEAU 5 — JOURNAUX & GLOSSAIRE -->
+  <div class="banner" id="section-journaux">
+    <div class="banner-bg placeholder" style="background-image:url('bandeaux/journaux.png')"></div>
+    <div class="banner-overlay-left"></div>
+    <div class="banner-content">
+      <div class="banner-num">05 — Lore & Référence</div>
+      <div class="banner-title">Journaux & Glossaire</div>
+      <div class="banner-desc">Articles de presse fictifs, éditoriaux d'Ailleurs, et glossaire complet des termes propres à l'univers de Terre d'Ailleurs.</div>
+      <a href="#" class="banner-btn">Parcourir →</a>
     </div>
   </div>
 
@@ -296,7 +331,7 @@
 <script>
 const PASSWORD = "lanternes2025";
 const TOTAL = 8;
-let cur = 0, interval;
+let cur = 0, isTransitioning = false;
 let trailH=42, trailS=85, trailL=65, trailActive=true;
 
 const PRESETS = [
@@ -305,27 +340,65 @@ const PRESETS = [
   {name:'Cyan',h:185,s:85,l:60},{name:'Rose',h:320,s:80,l:70},
 ];
 
-function initSlideshow() {
-  const dots = document.getElementById('heroDots');
-  for (let i=0; i<TOTAL; i++) {
-    const d=document.createElement('div');
-    d.className='dot'+(i===0?' active':'');
-    d.onclick=()=>goTo(i);
-    dots.appendChild(d);
-  }
-  interval=setInterval(()=>{cur=(cur+1)%TOTAL;update();},5000);
-}
-function goTo(n){cur=n;update();clearInterval(interval);interval=setInterval(()=>{cur=(cur+1)%TOTAL;update();},5000);}
-function update(){
-  const pct=cur*(100/TOTAL);
-  document.getElementById('heroSlides').style.transform=`translateX(-${pct}%)`;
-  document.getElementById('gateSlides').style.transform=`translateX(-${pct}%)`;
-  document.querySelectorAll('.dot').forEach((d,i)=>d.className='dot'+(i===cur?' active':''));
+// ── INFINITE CAROUSEL ──
+function setSlide(trackId, index, animate) {
+  const track = document.getElementById(trackId);
+  if (!animate) track.style.transition = 'none';
+  else track.style.transition = 'transform 1.1s cubic-bezier(0.77,0,0.175,1)';
+  track.style.transform = `translateX(-${index * 100}%)`;
 }
 
-function checkPassword(){
-  const v=document.getElementById('pwd-input').value;
-  if(v===PASSWORD){
+function initCarousel() {
+  const dots = document.getElementById('heroDots');
+  for (let i=0; i<TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===0?' active':'');
+    d.onclick = () => { if(!isTransitioning) goTo(i); };
+    dots.appendChild(d);
+  }
+  setInterval(() => { if(!isTransitioning) advance(); }, 5000);
+
+  // When hero transition ends, check if we're on the clone
+  document.getElementById('heroTrack').addEventListener('transitionend', () => {
+    if (cur === TOTAL) {
+      // Jump instantly to real slide 1
+      cur = 0;
+      setSlide('heroTrack', 0, false);
+      setSlide('gateTrack', 0, false);
+      // Re-enable transition next frame
+      requestAnimationFrame(() => {
+        document.getElementById('heroTrack').style.transition = '';
+        document.getElementById('gateTrack').style.transition = '';
+      });
+    }
+    isTransitioning = false;
+  });
+}
+
+function advance() {
+  isTransitioning = true;
+  cur++;
+  setSlide('heroTrack', cur, true);
+  setSlide('gateTrack', cur, true);
+  updateDots(cur >= TOTAL ? 0 : cur);
+}
+
+function goTo(n) {
+  isTransitioning = true;
+  cur = n;
+  setSlide('heroTrack', n, true);
+  setSlide('gateTrack', n, true);
+  updateDots(n);
+}
+
+function updateDots(active) {
+  document.querySelectorAll('.dot').forEach((d,i) => d.className='dot'+(i===active?' active':''));
+}
+
+// ── PASSWORD ──
+function checkPassword() {
+  const v = document.getElementById('pwd-input').value;
+  if (v === PASSWORD) {
     document.getElementById('gate').style.display='none';
     document.getElementById('wiki').style.display='block';
     sessionStorage.setItem('lodl-auth','1');
@@ -335,13 +408,13 @@ function checkPassword(){
     document.getElementById('pwd-input').focus();
   }
 }
-document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
-if(sessionStorage.getItem('lodl-auth')==='1'){
+document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPassword(); });
+if (sessionStorage.getItem('lodl-auth')==='1') {
   document.getElementById('gate').style.display='none';
   document.getElementById('wiki').style.display='block';
 }
 
-// Cursor
+// ── CURSOR ──
 (function(){
   const canvas=document.getElementById('cursorCanvas');
   const ctx=canvas.getContext('2d');
@@ -368,6 +441,7 @@ if(sessionStorage.getItem('lodl-auth')==='1'){
   })();
 })();
 
+// ── LANTERNERIE ──
 function openLanternerie(e){e.preventDefault();document.getElementById('lanternerie-panel').classList.add('open');}
 function closeLanternerie(){document.getElementById('lanternerie-panel').classList.remove('open');}
 
@@ -376,20 +450,20 @@ function closeLanternerie(){document.getElementById('lanternerie-panel').classLi
   const ctx=canvas.getContext('2d');
   const cx=90,cy=90,r=85;
   for(let a=0;a<360;a++){
-    const s=(a-1)*Math.PI/180, en=(a+1)*Math.PI/180;
+    const s=(a-1)*Math.PI/180,en=(a+1)*Math.PI/180;
     const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
-    g.addColorStop(0,'white'); g.addColorStop(1,`hsl(${a},100%,50%)`);
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,s,en); ctx.closePath();
-    ctx.fillStyle=g; ctx.fill();
+    g.addColorStop(0,'white');g.addColorStop(1,`hsl(${a},100%,50%)`);
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,en);ctx.closePath();
+    ctx.fillStyle=g;ctx.fill();
   }
   function pick(e){
     const rect=canvas.getBoundingClientRect();
-    const x=e.clientX-rect.left-cx, y=e.clientY-rect.top-cy;
+    const x=e.clientX-rect.left-cx,y=e.clientY-rect.top-cy;
     const dist=Math.sqrt(x*x+y*y);
     if(dist>r)return;
-    let a=Math.atan2(y,x)*180/Math.PI; if(a<0)a+=360;
-    trailH=Math.round(a); trailS=Math.round((dist/r)*85+15);
-    updatePreview(); clearPresets();
+    let a=Math.atan2(y,x)*180/Math.PI;if(a<0)a+=360;
+    trailH=Math.round(a);trailS=Math.round((dist/r)*85+15);
+    updatePreview();clearPresets();
   }
   canvas.addEventListener('mousedown',e=>{pick(e);canvas.addEventListener('mousemove',pick);});
   window.addEventListener('mouseup',()=>canvas.removeEventListener('mousemove',pick));
@@ -397,7 +471,6 @@ function closeLanternerie(){document.getElementById('lanternerie-panel').classLi
 
 document.getElementById('brightnessSlider').addEventListener('input',function(){trailL=parseInt(this.value);updatePreview();});
 document.getElementById('trailToggle').addEventListener('change',function(){trailActive=this.checked;});
-
 function updatePreview(){document.getElementById('colorPreview').style.background=`hsl(${trailH},${trailS}%,${trailL}%)`;}
 function clearPresets(){document.querySelectorAll('.preset').forEach(p=>p.classList.remove('selected'));}
 
@@ -406,14 +479,14 @@ function clearPresets(){document.querySelectorAll('.preset').forEach(p=>p.classL
   PRESETS.forEach((p,i)=>{
     const el=document.createElement('div');
     el.className='preset'+(i===0?' selected':'');
-    el.title=p.name; el.style.background=`hsl(${p.h},${p.s}%,${p.l}%)`;
+    el.title=p.name;el.style.background=`hsl(${p.h},${p.s}%,${p.l}%)`;
     el.onclick=()=>{trailH=p.h;trailS=p.s;trailL=p.l;document.getElementById('brightnessSlider').value=p.l;updatePreview();clearPresets();el.classList.add('selected');};
     c.appendChild(el);
   });
 })();
 
 updatePreview();
-initSlideshow();
+initCarousel();
 </script>
 </body>
 </html>
