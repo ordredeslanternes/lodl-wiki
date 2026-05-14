@@ -341,11 +341,24 @@ const PRESETS = [
 ];
 
 // ── INFINITE CAROUSEL ──
-function setSlide(trackId, index, animate) {
-  const track = document.getElementById(trackId);
-  if (!animate) track.style.transition = 'none';
-  else track.style.transition = 'transform 1.1s cubic-bezier(0.77,0,0.175,1)';
-  track.style.transform = `translateX(-${index * 100}%)`;
+const tracks = ['heroTrack', 'gateTrack'];
+
+function moveTo(index, animate) {
+  tracks.forEach(id => {
+    const t = document.getElementById(id);
+    t.style.transition = animate ? 'transform 1.1s cubic-bezier(0.77,0,0.175,1)' : 'none';
+    t.style.transform = `translateX(-${index * 100}%)`;
+  });
+}
+
+function jumpTo(index) {
+  // Disable transition, move, force reflow, re-enable
+  tracks.forEach(id => {
+    const t = document.getElementById(id);
+    t.style.transition = 'none';
+    t.style.transform = `translateX(-${index * 100}%)`;
+    t.offsetHeight; // force reflow
+  });
 }
 
 function initCarousel() {
@@ -358,18 +371,10 @@ function initCarousel() {
   }
   setInterval(() => { if(!isTransitioning) advance(); }, 5000);
 
-  // When hero transition ends, check if we're on the clone
   document.getElementById('heroTrack').addEventListener('transitionend', () => {
     if (cur === TOTAL) {
-      // Jump instantly to real slide 1
       cur = 0;
-      setSlide('heroTrack', 0, false);
-      setSlide('gateTrack', 0, false);
-      // Re-enable transition next frame
-      requestAnimationFrame(() => {
-        document.getElementById('heroTrack').style.transition = '';
-        document.getElementById('gateTrack').style.transition = '';
-      });
+      jumpTo(0);
     }
     isTransitioning = false;
   });
@@ -378,16 +383,14 @@ function initCarousel() {
 function advance() {
   isTransitioning = true;
   cur++;
-  setSlide('heroTrack', cur, true);
-  setSlide('gateTrack', cur, true);
+  moveTo(cur, true);
   updateDots(cur >= TOTAL ? 0 : cur);
 }
 
 function goTo(n) {
   isTransitioning = true;
   cur = n;
-  setSlide('heroTrack', n, true);
-  setSlide('gateTrack', n, true);
+  moveTo(n, true);
   updateDots(n);
 }
 
