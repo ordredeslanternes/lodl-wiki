@@ -41,50 +41,44 @@
     #wiki{display:none;}
 
     /* ═══════════════════════════════
-       HEADER FIXE — DEUX ÉTATS
+       HEADER FIXE — TOUJOURS TRANSPARENT
     ═══════════════════════════════ */
     .site-header{
       position:fixed;
       top:0;left:0;right:0;
       z-index:100;
-      transition:background 0.5s ease, backdrop-filter 0.5s ease, box-shadow 0.5s ease;
-      background:transparent;
-    }
-    .site-header.scrolled{
-      background:rgba(10,8,5,0.94);
-      backdrop-filter:blur(10px);
-      box-shadow:0 1px 0 var(--border);
     }
 
-    /* Logo centré — invisible en haut, visible au scroll */
+    /* Dégradé discret tout en haut pour lisibilité de la nav */
+    .site-header::before{
+      content:'';
+      position:absolute;
+      top:0;left:0;right:0;
+      height:120px;
+      background:linear-gradient(to bottom,rgba(10,8,5,0.6) 0%,transparent 100%);
+      pointer-events:none;
+    }
+
+    /* Logo haut gauche — toujours visible, doré */
     .header-logo{
       position:absolute;
-      left:50%;
-      transform:translateX(-50%);
+      left:2.5rem;
       top:50%;
-      margin-top:-1.1rem;
+      transform:translateY(-50%);
       font-family:'Cinzel',serif;
-      font-size:1.1rem;
+      font-size:1rem;
       color:var(--gold);
       letter-spacing:0.2em;
       text-decoration:none;
       white-space:nowrap;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity 0.5s ease;
-      text-align:center;
       line-height:1.2;
     }
     .header-logo span{
-      font-size:0.6rem;
+      font-size:0.58rem;
       display:block;
       letter-spacing:0.3em;
-      color:rgba(255,255,255,0.35);
+      color:rgba(201,168,76,0.55);
       margin-top:1px;
-    }
-    .site-header.scrolled .header-logo{
-      opacity:1;
-      pointer-events:auto;
     }
 
     /* Barre de navigation */
@@ -95,9 +89,11 @@
       height:64px;
       padding:0 2rem;
       gap:0;
+      position:relative;
+      z-index:1;
     }
     .header-nav a{
-      color:rgba(255,255,255,0.85);
+      color:rgba(255,255,255,0.9);
       font-weight:600;
       text-decoration:none;
       font-family:'Cinzel',serif;
@@ -108,6 +104,7 @@
       border-bottom:2px solid transparent;
       transition:all 0.25s;
       white-space:nowrap;
+      text-shadow:0 1px 6px rgba(0,0,0,0.8);
     }
     .header-nav a:hover{color:#fff;border-bottom-color:var(--gold);}
 
@@ -120,14 +117,13 @@
       display:flex;
       align-items:center;
       background:rgba(255,255,255,0.07);
-      border:1px solid rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.15);
       border-radius:2px;
       padding:0.35rem 0.8rem;
       gap:0.4rem;
-      transition:background 0.3s;
+      z-index:1;
     }
-    .header-search:hover{background:rgba(255,255,255,0.1);}
-    .header-search input{background:none;border:none;outline:none;color:#fff;font-family:'Crimson Pro',serif;font-size:0.9rem;width:160px;}
+    .header-search input{background:none;border:none;outline:none;color:#fff;font-family:'Crimson Pro',serif;font-size:0.9rem;width:140px;}
     .header-search input::placeholder{color:rgba(255,255,255,0.3);}
     .header-search-icon{color:rgba(255,255,255,0.4);font-size:1rem;}
 
@@ -194,7 +190,7 @@
       font-family:'Cinzel',serif;
       font-size:clamp(3rem,8vw,7rem);
       font-weight:700;
-      color:#fff;
+      color:var(--gold);
       line-height:1;
       letter-spacing:0.04em;
       text-shadow:0 4px 40px rgba(0,0,0,0.8);
@@ -467,13 +463,6 @@ const PASSWORD="lanternes2025";
 const TOTAL=8;
 let cur=0,trailH=42,trailS=85,trailL=65,trailActive=true;
 const PRESETS=[{name:'Or',h:42,s:85,l:65},{name:'Bleu',h:210,s:90,l:65},{name:'Violet',h:270,s:80,l:65},{name:'Vert',h:140,s:75,l:55},{name:'Rouge',h:0,s:85,l:60},{name:'Blanc',h:50,s:20,l:95},{name:'Cyan',h:185,s:85,l:60},{name:'Rose',h:320,s:80,l:70}];
-
-/* HEADER SCROLL */
-window.addEventListener('scroll',()=>{
-  const h=document.getElementById('siteHeader');
-  if(window.scrollY>80){h.classList.add('scrolled');}
-  else{h.classList.remove('scrolled');}
-},{passive:true});
 
 /* CAROUSEL */
 function getSlideW(){return document.querySelector('.hero-slide').offsetWidth;}
