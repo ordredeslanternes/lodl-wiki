@@ -4,40 +4,128 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>L'Ordre des Lanternes — Wiki</title>
-
-  <!-- Polices Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
-
-  <!-- Feuille de style -->
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root{--gold:#c9a84c;--gold-dim:#8a6d2f;--gold-bright:#f0c96a;--ember:#e87040;--dark:#0d0b09;--dark2:#151210;--dark3:#1c1813;--border:rgba(201,168,76,0.2);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--dark);color:#fff;font-family:'Crimson Pro',serif;min-height:100vh;overflow-x:hidden;}
+    #cursorCanvas{position:fixed;inset:0;pointer-events:none;z-index:9999;}
+    #gate{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;}
+    .gate-bg{position:absolute;inset:0;background:rgba(0,0,0,0.55);}
+    .gate-slideshow{position:absolute;inset:0;overflow:hidden;}
+    .gate-track{display:flex;height:100%;}
+    .gate-slide{min-width:100%;height:100%;background-size:cover;background-position:center;flex-shrink:0;}
+    .gate-card{position:relative;background:rgba(13,11,9,0.9);border:1px solid var(--border);padding:3rem 3.5rem;display:flex;flex-direction:column;align-items:center;gap:1.8rem;max-width:420px;width:90%;}
+    .gate-lantern{font-size:3.5rem;animation:flicker 3s ease-in-out infinite;}
+    @keyframes flicker{0%,100%{filter:drop-shadow(0 0 20px rgba(201,168,76,0.7));}50%{filter:drop-shadow(0 0 6px rgba(201,168,76,0.15));}}
+    .gate-title{font-family:'Cinzel',serif;font-size:clamp(1.3rem,3vw,1.9rem);color:var(--gold);letter-spacing:0.15em;text-align:center;}
+    .gate-subtitle{font-size:0.95rem;color:rgba(255,255,255,0.6);letter-spacing:0.1em;font-style:italic;text-align:center;margin-top:-0.8rem;}
+    .gate-divider{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+    .gate-form{display:flex;flex-direction:column;align-items:center;gap:1rem;width:100%;}
+    .gate-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.3);border-radius:2px;padding:0.85rem 1.2rem;font-family:'Crimson Pro',serif;font-size:1.1rem;color:#fff;letter-spacing:0.15em;outline:none;transition:border-color 0.3s;text-align:center;}
+    .gate-input::placeholder{color:rgba(255,255,255,0.25);}
+    .gate-input:focus{border-color:var(--gold-dim);}
+    .gate-btn{background:transparent;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.25em;padding:0.75rem 2.5rem;cursor:pointer;transition:all 0.3s;text-transform:uppercase;}
+    .gate-btn:hover{background:rgba(201,168,76,0.12);border-color:var(--gold);}
+    .gate-error{color:#e87040;font-size:0.88rem;font-style:italic;min-height:1.2em;text-align:center;}
+    #wiki{display:none;}
+    .topbar{background:var(--dark);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;position:sticky;top:0;z-index:100;}
+    .topbar-logo{font-family:'Cinzel',serif;font-size:1.35rem;color:var(--gold);letter-spacing:0.15em;text-decoration:none;}
+    .topbar-logo span{font-size:0.7rem;display:block;letter-spacing:0.3em;color:rgba(255,255,255,0.4);margin-top:-2px;}
+    .topbar-search{display:flex;align-items:center;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:2px;padding:0.4rem 0.9rem;gap:0.5rem;}
+    .topbar-search input{background:none;border:none;outline:none;color:#fff;font-family:'Crimson Pro',serif;font-size:0.95rem;width:180px;}
+    .topbar-search input::placeholder{color:rgba(255,255,255,0.3);}
+    .navbar{background:var(--dark2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow-x:auto;position:sticky;top:64px;z-index:99;}
+    .navbar a{color:rgba(255,255,255,0.9);font-weight:600;text-decoration:none;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;padding:1rem 1.4rem;border-bottom:2px solid transparent;transition:all 0.25s;white-space:nowrap;display:inline-block;}
+    .navbar a:hover{color:#fff;border-bottom-color:var(--gold);}
+    .hero{position:relative;height:88vh;min-height:540px;overflow:hidden;}
+    .hero-track{display:flex;height:100%;will-change:transform;}
+    .hero-slide{min-width:100vw;height:100%;flex-shrink:0;background-size:cover;background-position:center;}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(13,11,9,0.8) 0%,rgba(13,11,9,0.25) 55%,transparent 100%);z-index:1;}
+    .hero-overlay-bottom{position:absolute;bottom:0;left:0;right:0;height:220px;background:linear-gradient(to top,var(--dark),transparent);z-index:2;}
+    .hero-content{position:absolute;bottom:0;left:0;z-index:3;padding:3.5rem 5rem;max-width:700px;}
+    .hero-tag{font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.35em;color:var(--gold);text-transform:uppercase;margin-bottom:1rem;}
+    .hero-title{font-family:'Cinzel',serif;font-size:clamp(2.8rem,6vw,5rem);font-weight:700;color:#fff;line-height:1.02;letter-spacing:0.04em;text-shadow:0 2px 24px rgba(0,0,0,0.9);margin-bottom:1.2rem;}
+    .hero-sub{font-size:1.25rem;color:rgba(255,255,255,0.82);font-style:italic;line-height:1.7;text-shadow:0 1px 10px rgba(0,0,0,0.9);margin-bottom:2rem;}
+    .hero-btn{display:inline-block;background:var(--gold);color:#0d0b09;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.25em;text-transform:uppercase;padding:0.85rem 2.2rem;text-decoration:none;transition:all 0.3s;font-weight:700;}
+    .hero-btn:hover{background:var(--gold-bright);}
+    .hero-dots{position:absolute;bottom:1.8rem;right:2.5rem;display:flex;gap:8px;z-index:4;}
+    .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.5);transition:all 0.4s;cursor:pointer;}
+    .dot.active{background:var(--gold);width:22px;border-radius:3px;}
+    .banner{position:relative;height:480px;overflow:hidden;display:flex;align-items:center;border-top:1px solid var(--border);}
+    .banner-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 0.6s ease;}
+    .banner:hover .banner-bg{transform:scale(1.03);}
+    .banner-bg.placeholder{background:linear-gradient(135deg,#1c1813 0%,#2a2218 50%,#1c1813 100%);}
+    .banner-overlay-left{position:absolute;inset:0;background:linear-gradient(to right,rgba(13,11,9,0.92) 0%,rgba(13,11,9,0.7) 40%,rgba(13,11,9,0.15) 75%,transparent 100%);z-index:1;}
+    .banner-overlay-right{position:absolute;inset:0;background:linear-gradient(to left,rgba(13,11,9,0.92) 0%,rgba(13,11,9,0.7) 40%,rgba(13,11,9,0.15) 75%,transparent 100%);z-index:1;}
+    .banner-content{position:relative;z-index:2;padding:0 5rem;max-width:580px;}
+    .banner.right .banner-content{margin-left:auto;text-align:right;}
+    .banner-num{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;margin-bottom:0.8rem;opacity:0.8;}
+    .banner-title{font-family:'Cinzel',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:700;color:#fff;line-height:1.1;margin-bottom:1rem;letter-spacing:0.05em;}
+    .banner-desc{font-size:1.15rem;color:rgba(255,255,255,0.8);font-style:italic;line-height:1.8;margin-bottom:1.8rem;}
+    .banner-btn{display:inline-block;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.25em;text-transform:uppercase;padding:0.75rem 2rem;text-decoration:none;transition:all 0.3s;}
+    .banner-btn:hover{background:rgba(201,168,76,0.12);border-color:var(--gold);color:var(--gold-bright);}
+    .featured{background:var(--dark2);border-top:1px solid var(--border);padding:4rem 5rem;display:grid;grid-template-columns:1fr 300px;gap:4rem;align-items:start;}
+    .featured-left .tag{font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.3em;color:var(--ember);text-transform:uppercase;margin-bottom:0.8rem;}
+    .featured-left h3{font-family:'Cinzel',serif;font-size:2rem;color:var(--gold);margin-bottom:1.2rem;}
+    .featured-left p{font-size:1.15rem;color:rgba(255,255,255,0.82);line-height:1.9;font-style:italic;}
+    .featured-right{border-left:1px solid var(--border);padding-left:2.5rem;}
+    .featured-right .mini-title{font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.25em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:1.5rem;}
+    .featured-link{display:block;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:all 0.2s;}
+    .featured-link:hover{padding-left:0.5rem;}
+    .featured-link .fl-cat{font-size:0.72rem;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:0.15em;}
+    .featured-link .fl-title{font-size:1.05rem;color:#fff;margin-top:0.2rem;}
+    footer{background:var(--dark);border-top:1px solid var(--border);text-align:center;padding:2.5rem;color:rgba(255,255,255,0.3);font-size:0.82rem;letter-spacing:0.12em;font-family:'Cinzel',serif;}
+    #lanternerie-panel{display:none;position:fixed;top:0;right:0;bottom:0;width:320px;background:rgba(13,11,9,0.98);border-left:1px solid var(--border);z-index:200;padding:2.5rem 2rem;flex-direction:column;gap:2rem;overflow-y:auto;}
+    #lanternerie-panel.open{display:flex;}
+    .panel-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;}
+    .panel-close{position:absolute;top:1.5rem;right:1.5rem;background:none;border:none;color:rgba(255,255,255,0.4);font-size:1.4rem;cursor:pointer;transition:color 0.2s;}
+    .panel-close:hover{color:#fff;}
+    .panel-section{display:flex;flex-direction:column;gap:0.8rem;}
+    .panel-label{font-size:0.72rem;color:rgba(255,255,255,0.4);letter-spacing:0.15em;font-family:'Cinzel',serif;text-transform:uppercase;}
+    .color-wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+    #colorWheel{width:180px;height:180px;border-radius:50%;cursor:crosshair;border:2px solid var(--border);}
+    .brightness-row{display:flex;align-items:center;gap:0.8rem;width:100%;}
+    .brightness-row label{font-size:0.72rem;color:rgba(255,255,255,0.4);font-family:'Cinzel',serif;white-space:nowrap;}
+    #brightnessSlider{flex:1;accent-color:var(--gold);}
+    .color-preview{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);flex-shrink:0;}
+    .preset-colors{display:flex;gap:10px;flex-wrap:wrap;}
+    .preset{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+    .preset:hover,.preset.selected{border-color:#fff;transform:scale(1.15);}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;}
+    .toggle-label{font-size:1rem;color:rgba(255,255,255,0.8);}
+    .toggle{position:relative;width:44px;height:24px;}
+    .toggle input{opacity:0;width:0;height:0;}
+    .toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,0.15);border-radius:12px;cursor:pointer;transition:background 0.3s;}
+    .toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform 0.3s;}
+    .toggle input:checked+.toggle-slider{background:var(--gold-dim);}
+    .toggle input:checked+.toggle-slider::before{transform:translateX(20px);}
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:var(--dark);}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  </style>
 </head>
 <body>
-
 <canvas id="cursorCanvas"></canvas>
 
-<!-- PAGE DE MOT DE PASSE -->
 <div id="gate">
-  <div class="gate-slideshow">
-    <div class="gate-track" id="gateTrack">
-      <div class="gate-slide" style="background-image:url('assets/hero/1.png')"></div>
-      <div class="gate-slide" style="background-image:url('assets/hero/2.png')"></div>
-      <div class="gate-slide" style="background-image:url('assets/hero/3.png')"></div>
-      <div class="gate-slide" style="background-image:url('assets/hero/4.png')"></div>
-      <div class="gate-slide" style="background-image:url('assets/hero/5.png')"></div>
-      <div class="gate-slide" style="background-image:url('assets/hero/6.png')"></div>
-      <div class="gate-slide" style="background-image:url('assets/hero/7.png')"></div>
-      <div class="gate-slide" style="background-image:url('assets/hero/8.png')"></div>
-      <div class="gate-slide" style="background-image:url('assets/hero/1.png')"></div>
-    </div>
-  </div>
+  <div class="gate-slideshow"><div class="gate-track" id="gateTrack">
+    <div class="gate-slide" style="background-image:url('assets/hero/1.png')"></div>
+    <div class="gate-slide" style="background-image:url('assets/hero/2.png')"></div>
+    <div class="gate-slide" style="background-image:url('assets/hero/3.png')"></div>
+    <div class="gate-slide" style="background-image:url('assets/hero/4.png')"></div>
+    <div class="gate-slide" style="background-image:url('assets/hero/5.png')"></div>
+    <div class="gate-slide" style="background-image:url('assets/hero/6.png')"></div>
+    <div class="gate-slide" style="background-image:url('assets/hero/7.png')"></div>
+    <div class="gate-slide" style="background-image:url('assets/hero/8.png')"></div>
+    <div class="gate-slide" style="background-image:url('assets/hero/1.png')"></div>
+  </div></div>
   <div class="gate-bg"></div>
   <div class="gate-card">
     <div class="gate-lantern">🏮</div>
-    <div>
-      <div class="gate-title">L'Ordre des Lanternes</div>
-      <div class="gate-subtitle">Archives Secrètes — Accès Restreint</div>
-    </div>
+    <div><div class="gate-title">L'Ordre des Lanternes</div><div class="gate-subtitle">Archives Secrètes — Accès Restreint</div></div>
     <div class="gate-divider"></div>
     <div class="gate-form">
       <input type="password" class="gate-input" id="pwd-input" placeholder="Mot de passe" autofocus>
@@ -47,7 +135,6 @@
   </div>
 </div>
 
-<!-- PANNEAU LANTERNERIE -->
 <div id="lanternerie-panel">
   <button class="panel-close" onclick="closeLanternerie()">✕</button>
   <div class="panel-title">🏮 La Lanternerie</div>
@@ -55,42 +142,18 @@
     <div class="panel-label">Couleur du filament</div>
     <div class="color-wheel-wrap">
       <canvas id="colorWheel" width="180" height="180"></canvas>
-      <div class="brightness-row">
-        <label>Luminosité</label>
-        <input type="range" id="brightnessSlider" min="20" max="100" value="65">
-        <div class="color-preview" id="colorPreview"></div>
-      </div>
+      <div class="brightness-row"><label>Luminosité</label><input type="range" id="brightnessSlider" min="20" max="100" value="65"><div class="color-preview" id="colorPreview"></div></div>
     </div>
   </div>
-  <div class="panel-section">
-    <div class="panel-label">Couleurs des lanternes</div>
-    <div class="preset-colors" id="presetColors"></div>
-  </div>
-  <div class="panel-section">
-    <div class="toggle-row">
-      <span class="toggle-label">Filament actif</span>
-      <label class="toggle">
-        <input type="checkbox" id="trailToggle" checked>
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-  </div>
+  <div class="panel-section"><div class="panel-label">Couleurs des lanternes</div><div class="preset-colors" id="presetColors"></div></div>
+  <div class="panel-section"><div class="toggle-row"><span class="toggle-label">Filament actif</span><label class="toggle"><input type="checkbox" id="trailToggle" checked><span class="toggle-slider"></span></label></div></div>
 </div>
 
-<!-- WIKI -->
 <div id="wiki">
-
   <div class="topbar">
-    <a class="topbar-logo" href="#">
-      L'Ordre des Lanternes
-      <span>Archives de Terre d'Ailleurs</span>
-    </a>
-    <div class="topbar-search">
-      <span>⌕</span>
-      <input type="text" placeholder="Rechercher…">
-    </div>
+    <a class="topbar-logo" href="#">L'Ordre des Lanternes<span>Archives de Terre d'Ailleurs</span></a>
+    <div class="topbar-search"><span>⌕</span><input type="text" placeholder="Rechercher…"></div>
   </div>
-
   <nav class="navbar">
     <a href="#section-monde">Le Monde</a>
     <a href="#section-histoire">L'Histoire</a>
@@ -99,7 +162,6 @@
     <a href="#section-journaux">Journaux &amp; Glossaire</a>
     <a href="#" onclick="openLanternerie(event)">🏮 Lanternerie</a>
   </nav>
-
   <div class="hero">
     <div class="hero-track" id="heroTrack">
       <div class="hero-slide" style="background-image:url('assets/hero/1.png')"></div>
@@ -117,10 +179,7 @@
     <div class="hero-content">
       <div class="hero-tag">Archives Secrètes — Terre d'Ailleurs</div>
       <div class="hero-title">L'Ordre des<br>Lanternes</div>
-      <div class="hero-sub">
-        Un monde où les sylphes vivent dans les lanternes,<br>
-        et où les lanterneurs gardent l'équilibre entre deux mondes.
-      </div>
+      <div class="hero-sub">Un monde où les sylphes vivent dans les lanternes,<br>et où les lanterneurs gardent l'équilibre entre deux mondes.</div>
       <a href="#section-monde" class="hero-btn">Explorer les archives</a>
     </div>
     <div class="hero-dots" id="heroDots"></div>
@@ -129,56 +188,27 @@
   <div class="banner" id="section-monde">
     <div class="banner-bg placeholder" style="background-image:url('assets/bandeaux/monde.png')"></div>
     <div class="banner-overlay-left"></div>
-    <div class="banner-content">
-      <div class="banner-num">01 — Géographie</div>
-      <div class="banner-title">Le Monde</div>
-      <div class="banner-desc">Terre d'Ailleurs et ses quatre continents, ses royaumes anciens, ses portails entre les mondes et les peuples fantastiques qui les habitent.</div>
-      <a href="#" class="banner-btn">Consulter les cartes →</a>
-    </div>
+    <div class="banner-content"><div class="banner-num">01 — Géographie</div><div class="banner-title">Le Monde</div><div class="banner-desc">Terre d'Ailleurs et ses quatre continents, ses royaumes anciens, ses portails entre les mondes et les peuples fantastiques qui les habitent.</div><a href="#" class="banner-btn">Consulter les cartes →</a></div>
   </div>
-
   <div class="banner right" id="section-histoire">
     <div class="banner-bg placeholder" style="background-image:url('assets/bandeaux/histoire.png')"></div>
     <div class="banner-overlay-right"></div>
-    <div class="banner-content">
-      <div class="banner-num">02 — Chronologie</div>
-      <div class="banner-title">L'Histoire</div>
-      <div class="banner-desc">De la fondation de l'Ordre en 535 à nos jours — guerres, cataclysmes, figures fondatrices et événements qui ont forgé Terre d'Ailleurs.</div>
-      <a href="#" class="banner-btn">Lire la chronologie →</a>
-    </div>
+    <div class="banner-content"><div class="banner-num">02 — Chronologie</div><div class="banner-title">L'Histoire</div><div class="banner-desc">De la fondation de l'Ordre en 535 à nos jours — guerres, cataclysmes, figures fondatrices et événements qui ont forgé Terre d'Ailleurs.</div><a href="#" class="banner-btn">Lire la chronologie →</a></div>
   </div>
-
   <div class="banner" id="section-organisations">
     <div class="banner-bg placeholder" style="background-image:url('assets/bandeaux/organisations.png')"></div>
     <div class="banner-overlay-left"></div>
-    <div class="banner-content">
-      <div class="banner-num">03 — Politique</div>
-      <div class="banner-title">Les Organisations</div>
-      <div class="banner-desc">L'Ordre des Lanternes, les Ligues, les factions rivales, les institutions secrètes et les pouvoirs qui gouvernent Ailleurs dans l'ombre.</div>
-      <a href="#" class="banner-btn">Explorer les factions →</a>
-    </div>
+    <div class="banner-content"><div class="banner-num">03 — Politique</div><div class="banner-title">Les Organisations</div><div class="banner-desc">L'Ordre des Lanternes, les Ligues, les factions rivales, les institutions secrètes et les pouvoirs qui gouvernent Ailleurs dans l'ombre.</div><a href="#" class="banner-btn">Explorer les factions →</a></div>
   </div>
-
   <div class="banner right" id="section-personnages">
     <div class="banner-bg placeholder" style="background-image:url('assets/bandeaux/personnages.png')"></div>
     <div class="banner-overlay-right"></div>
-    <div class="banner-content">
-      <div class="banner-num">04 — Fiches</div>
-      <div class="banner-title">Les Personnages</div>
-      <div class="banner-desc">Héros, antagonistes, figures historiques, créatures notables — chaque personnage de l'univers documenté avec précision.</div>
-      <a href="#" class="banner-btn">Voir les fiches →</a>
-    </div>
+    <div class="banner-content"><div class="banner-num">04 — Fiches</div><div class="banner-title">Les Personnages</div><div class="banner-desc">Héros, antagonistes, figures historiques, créatures notables — chaque personnage de l'univers documenté avec précision.</div><a href="#" class="banner-btn">Voir les fiches →</a></div>
   </div>
-
   <div class="banner" id="section-journaux">
     <div class="banner-bg placeholder" style="background-image:url('assets/bandeaux/journaux.png')"></div>
     <div class="banner-overlay-left"></div>
-    <div class="banner-content">
-      <div class="banner-num">05 — Lore &amp; Référence</div>
-      <div class="banner-title">Journaux &amp; Glossaire</div>
-      <div class="banner-desc">Articles de presse fictifs, éditoriaux d'Ailleurs, et glossaire complet des termes propres à l'univers de Terre d'Ailleurs.</div>
-      <a href="#" class="banner-btn">Parcourir →</a>
-    </div>
+    <div class="banner-content"><div class="banner-num">05 — Lore &amp; Référence</div><div class="banner-title">Journaux &amp; Glossaire</div><div class="banner-desc">Articles de presse fictifs, éditoriaux d'Ailleurs, et glossaire complet des termes propres à l'univers de Terre d'Ailleurs.</div><a href="#" class="banner-btn">Parcourir →</a></div>
   </div>
 
   <div class="featured">
@@ -195,13 +225,101 @@
       <a class="featured-link" href="#"><div class="fl-cat">Histoire</div><div class="fl-title">La Fondation</div></a>
     </div>
   </div>
-
   <footer>L'Ordre des Lanternes — Archives Personnelles — Usage Privé</footer>
-
 </div>
 
-<!-- Script principal (toujours en dernier) -->
-<script src="js/main.js"></script>
+<script>
+const PASSWORD="lanternes2025";
+const TOTAL=8;
+let cur=0,trailH=42,trailS=85,trailL=65,trailActive=true;
+const PRESETS=[{name:'Or',h:42,s:85,l:65},{name:'Bleu',h:210,s:90,l:65},{name:'Violet',h:270,s:80,l:65},{name:'Vert',h:140,s:75,l:55},{name:'Rouge',h:0,s:85,l:60},{name:'Blanc',h:50,s:20,l:95},{name:'Cyan',h:185,s:85,l:60},{name:'Rose',h:320,s:80,l:70}];
 
+/* CAROUSEL */
+function getSlideW(){return document.querySelector('.hero-slide').offsetWidth;}
+
+function goToSlide(n,animate){
+  const heroT=document.getElementById('heroTrack');
+  const gateT=document.getElementById('gateTrack');
+  const px=n*getSlideW();
+  [heroT,gateT].forEach(t=>{
+    t.style.transition=animate?'transform 1.1s cubic-bezier(0.77,0,0.175,1)':'none';
+    t.style.transform='translateX(-'+px+'px)';
+  });
+}
+
+function initCarousel(){
+  const dots=document.getElementById('heroDots');
+  for(let i=0;i<TOTAL;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===0?' active':'');
+    d.onclick=()=>{cur=i;goToSlide(i,true);updateDots(i);};
+    dots.appendChild(d);
+  }
+  setInterval(()=>{
+    cur++;
+    if(cur>=TOTAL){
+      goToSlide(TOTAL,true);
+      setTimeout(()=>{goToSlide(0,false);cur=0;updateDots(0);},1150);
+    } else {
+      goToSlide(cur,true);
+      updateDots(cur);
+    }
+  },5000);
+}
+
+function updateDots(a){document.querySelectorAll('.dot').forEach((d,i)=>d.className='dot'+(i===a?' active':''));}
+
+/* PASSWORD */
+function checkPassword(){
+  if(document.getElementById('pwd-input').value===PASSWORD){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('wiki').style.display='block';
+    sessionStorage.setItem('lodl-auth','1');
+  } else {
+    document.getElementById('gate-error').textContent='Mot de passe incorrect. Les archives restent scellées.';
+    document.getElementById('pwd-input').value='';
+    document.getElementById('pwd-input').focus();
+  }
+}
+document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
+if(sessionStorage.getItem('lodl-auth')==='1'){document.getElementById('gate').style.display='none';document.getElementById('wiki').style.display='block';}
+
+/* CURSOR */
+(function(){
+  const canvas=document.getElementById('cursorCanvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+  const pts=[];
+  window.addEventListener('mousemove',e=>{
+    if(!trailActive)return;
+    for(let i=0;i<4;i++)pts.push({x:e.clientX+(Math.random()-.5)*12,y:e.clientY+(Math.random()-.5)*12,vx:(Math.random()-.5)*2.5,vy:(Math.random()-.5)*2.5-.8,life:1,size:Math.random()*3+1.5});
+  });
+  (function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if(trailActive){for(let i=pts.length-1;i>=0;i--){const p=pts[i];p.x+=p.vx;p.y+=p.vy;p.life-=0.028;p.size*=0.975;if(p.life<=0){pts.splice(i,1);continue;}ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle='hsla('+trailH+','+trailS+'%,'+trailL+'%,'+(p.life*.9)+')';ctx.shadowBlur=12;ctx.shadowColor='hsla('+trailH+',100%,'+trailL+'%,'+p.life+')';ctx.fill();}}
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* LANTERNERIE */
+function openLanternerie(e){e.preventDefault();document.getElementById('lanternerie-panel').classList.add('open');}
+function closeLanternerie(){document.getElementById('lanternerie-panel').classList.remove('open');}
+(function(){
+  const canvas=document.getElementById('colorWheel'),ctx=canvas.getContext('2d'),cx=90,cy=90,r=85;
+  for(let a=0;a<360;a++){const s=(a-1)*Math.PI/180,en=(a+1)*Math.PI/180,g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'white');g.addColorStop(1,'hsl('+a+',100%,50%)');ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,en);ctx.closePath();ctx.fillStyle=g;ctx.fill();}
+  function pick(e){const rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left-cx,y=e.clientY-rect.top-cy,dist=Math.sqrt(x*x+y*y);if(dist>r)return;let a=Math.atan2(y,x)*180/Math.PI;if(a<0)a+=360;trailH=Math.round(a);trailS=Math.round((dist/r)*85+15);updatePreview();clearPresets();}
+  canvas.addEventListener('mousedown',e=>{pick(e);canvas.addEventListener('mousemove',pick);});
+  window.addEventListener('mouseup',()=>canvas.removeEventListener('mousemove',pick));
+})();
+document.getElementById('brightnessSlider').addEventListener('input',function(){trailL=parseInt(this.value);updatePreview();});
+document.getElementById('trailToggle').addEventListener('change',function(){trailActive=this.checked;});
+function updatePreview(){document.getElementById('colorPreview').style.background='hsl('+trailH+','+trailS+'%,'+trailL+'%)';}
+function clearPresets(){document.querySelectorAll('.preset').forEach(p=>p.classList.remove('selected'));}
+(function(){const c=document.getElementById('presetColors');PRESETS.forEach((p,i)=>{const el=document.createElement('div');el.className='preset'+(i===0?' selected':'');el.title=p.name;el.style.background='hsl('+p.h+','+p.s+'%,'+p.l+'%)';el.onclick=()=>{trailH=p.h;trailS=p.s;trailL=p.l;document.getElementById('brightnessSlider').value=p.l;updatePreview();clearPresets();el.classList.add('selected');};c.appendChild(el);});})();
+
+updatePreview();
+initCarousel();
+</script>
 </body>
 </html>
