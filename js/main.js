@@ -62,7 +62,8 @@ function initCarousel() {
 
   setInterval(() => { if (!isTransitioning) advance(); }, 5000);
 
-  document.getElementById('heroTrack').addEventListener('transitionend', () => {
+  document.getElementById('heroTrack').addEventListener('transitionend', (e) => {
+    if (e.propertyName !== 'transform') return;
     if (cur === TOTAL) {
       cur = 0;
       jumpTo(0);
@@ -76,6 +77,7 @@ function advance() {
   cur++;
   moveTo(cur, true);
   updateDots(cur >= TOTAL ? 0 : cur);
+  setTimeout(() => { isTransitioning = false; }, 1400);
 }
 
 function goTo(n) {
