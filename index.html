@@ -62,23 +62,16 @@
     /* Logo haut gauche — toujours visible, doré */
     .header-logo{
       position:absolute;
-      left:2.5rem;
-      top:50%;
-      transform:translateY(-50%);
+      left:1.2rem;
+      top:0.6rem;
       font-family:'Cinzel',serif;
-      font-size:1rem;
+      font-size:0.95rem;
       color:var(--gold);
-      letter-spacing:0.2em;
+      letter-spacing:0.18em;
       text-decoration:none;
       white-space:nowrap;
       line-height:1.2;
-    }
-    .header-logo span{
-      font-size:0.58rem;
-      display:block;
-      letter-spacing:0.3em;
-      color:rgba(201,168,76,0.55);
-      margin-top:1px;
+      text-shadow:0 1px 8px rgba(0,0,0,0.8);
     }
 
     /* Barre de navigation */
@@ -108,24 +101,100 @@
     }
     .header-nav a:hover{color:#fff;border-bottom-color:var(--gold);}
 
-    /* Barre de recherche droite */
-    .header-search{
+    /* Barre de recherche — supprimée du header */
+    .header-search{ display:none; }
+
+    /* ═══════════════════════════════
+       BARRE DE RECHERCHE HERO
+    ═══════════════════════════════ */
+    .hero-search-wrap{
       position:absolute;
-      right:2rem;
-      top:50%;
-      transform:translateY(-50%);
+      top:80px;
+      left:50%;
+      transform:translateX(-50%);
+      width:min(640px, 90vw);
+      z-index:5;
+    }
+    .hero-search-bar{
       display:flex;
       align-items:center;
-      background:rgba(255,255,255,0.07);
-      border:1px solid rgba(255,255,255,0.15);
-      border-radius:2px;
-      padding:0.35rem 0.8rem;
-      gap:0.4rem;
-      z-index:1;
+      background:rgba(10,8,5,0.35);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      border:1px solid rgba(201,168,76,0.3);
+      border-radius:3px;
+      padding:0.9rem 1.4rem;
+      gap:0.8rem;
+      transition:border-color 0.3s, background 0.3s;
     }
-    .header-search input{background:none;border:none;outline:none;color:#fff;font-family:'Crimson Pro',serif;font-size:0.9rem;width:140px;}
-    .header-search input::placeholder{color:rgba(255,255,255,0.3);}
-    .header-search-icon{color:rgba(255,255,255,0.4);font-size:1rem;}
+    .hero-search-bar:focus-within{
+      border-color:rgba(201,168,76,0.7);
+      background:rgba(10,8,5,0.5);
+    }
+    .hero-search-icon{
+      color:rgba(201,168,76,0.7);
+      font-size:1.2rem;
+      flex-shrink:0;
+    }
+    .hero-search-input{
+      background:none;
+      border:none;
+      outline:none;
+      color:#fff;
+      font-family:'Crimson Pro',serif;
+      font-size:1.1rem;
+      width:100%;
+      letter-spacing:0.05em;
+    }
+    .hero-search-input::placeholder{
+      color:rgba(255,255,255,0.35);
+      font-style:italic;
+    }
+    .hero-search-dropdown{
+      display:none;
+      position:absolute;
+      top:calc(100% + 4px);
+      left:0; right:0;
+      background:rgba(10,8,5,0.75);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      border:1px solid rgba(201,168,76,0.2);
+      border-top:none;
+      border-radius:0 0 3px 3px;
+      overflow:hidden;
+    }
+    .hero-search-dropdown.visible{ display:block; }
+    .search-result{
+      display:flex;
+      align-items:center;
+      gap:1rem;
+      padding:0.9rem 1.4rem;
+      cursor:pointer;
+      transition:background 0.2s;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      text-decoration:none;
+    }
+    .search-result:last-child{ border-bottom:none; }
+    .search-result:hover{ background:rgba(201,168,76,0.1); }
+    .search-result-cat{
+      font-family:'Cinzel',serif;
+      font-size:0.65rem;
+      letter-spacing:0.2em;
+      color:var(--gold);
+      text-transform:uppercase;
+      white-space:nowrap;
+      min-width:90px;
+    }
+    .search-result-title{
+      font-size:1rem;
+      color:rgba(255,255,255,0.85);
+    }
+    .search-no-result{
+      padding:1rem 1.4rem;
+      color:rgba(255,255,255,0.35);
+      font-style:italic;
+      font-size:0.95rem;
+    }
 
     /* ═══════════════════════════════
        HERO — PLEIN ÉCRAN CINÉMATIQUE
@@ -361,9 +430,7 @@
   <!-- HEADER FIXE -->
   <header class="site-header" id="siteHeader">
     <!-- Logo centré (visible après scroll) -->
-    <a class="header-logo" href="#">
-      <img src="assets/ui/logo.svg" alt="L'Ordre des Lanternes" height="30">
-    </a>
+    <a class="header-logo" href="#">L'Ordre des Lanternes</a>
     <!-- Navigation centrée -->
     <nav class="header-nav">
       <a href="#section-monde">Le Monde</a>
@@ -373,11 +440,6 @@
       <a href="#section-journaux">Journaux &amp; Glossaire</a>
       <a href="#" onclick="openLanternerie(event)">🏮 Lanternerie</a>
     </nav>
-    <!-- Recherche à droite -->
-    <div class="header-search">
-      <span class="header-search-icon">⌕</span>
-      <input type="text" placeholder="Rechercher…">
-    </div>
   </header>
 
   <!-- HERO PLEIN ÉCRAN -->
@@ -395,6 +457,15 @@
     </div>
     <div class="hero-veil"></div>
     <div class="hero-overlay-bottom"></div>
+
+    <!-- BARRE DE RECHERCHE SUR LE HERO -->
+    <div class="hero-search-wrap">
+      <div class="hero-search-bar">
+        <span class="hero-search-icon">⌕</span>
+        <input type="text" class="hero-search-input" id="heroSearch" placeholder="Rechercher dans les archives…" autocomplete="off">
+      </div>
+      <div class="hero-search-dropdown" id="searchDropdown"></div>
+    </div>
 
     <!-- Titre centré dans le hero -->
     <div class="hero-center">
@@ -541,6 +612,61 @@ document.getElementById('trailToggle').addEventListener('change',function(){trai
 function updatePreview(){document.getElementById('colorPreview').style.background='hsl('+trailH+','+trailS+'%,'+trailL+'%)';}
 function clearPresets(){document.querySelectorAll('.preset').forEach(p=>p.classList.remove('selected'));}
 (function(){const c=document.getElementById('presetColors');PRESETS.forEach((p,i)=>{const el=document.createElement('div');el.className='preset'+(i===0?' selected':'');el.title=p.name;el.style.background='hsl('+p.h+','+p.s+'%,'+p.l+'%)';el.onclick=()=>{trailH=p.h;trailS=p.s;trailL=p.l;document.getElementById('brightnessSlider').value=p.l;updatePreview();clearPresets();el.classList.add('selected');};c.appendChild(el);});})();
+
+/* RECHERCHE */
+const SEARCH_DATA = [
+  {cat:'Le Monde', title:'Terre d\'Ailleurs'},
+  {cat:'Le Monde', title:'La Terre Sablière'},
+  {cat:'Le Monde', title:'La Terre des Géants'},
+  {cat:'Le Monde', title:'Les Portails'},
+  {cat:'Le Monde', title:'Le Monde Commun'},
+  {cat:'L\'Histoire', title:'La Fondation de l\'Ordre'},
+  {cat:'L\'Histoire', title:'La Guerre des Lanternes'},
+  {cat:'L\'Histoire', title:'L\'Ère des Sylphes'},
+  {cat:'Organisations', title:'L\'Ordre des Lanternes'},
+  {cat:'Organisations', title:'Les Ligues'},
+  {cat:'Organisations', title:'Le Tribunal des Lanternes'},
+  {cat:'Personnages', title:'Chloé'},
+  {cat:'Personnages', title:'Cloche'},
+  {cat:'Personnages', title:'Merlin'},
+  {cat:'Personnages', title:'Galaad du Lac'},
+  {cat:'Magie', title:'Les Sylphes'},
+  {cat:'Magie', title:'La Brume Crépusculaire'},
+  {cat:'Magie', title:'Les Lanternes'},
+  {cat:'Glossaire', title:'Lanterneur / Lanterneuse'},
+  {cat:'Glossaire', title:'Sylphe'},
+  {cat:'Glossaire', title:'Ailleurs'},
+];
+
+const searchInput = document.getElementById('heroSearch');
+const searchDropdown = document.getElementById('searchDropdown');
+
+searchInput.addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  searchDropdown.innerHTML = '';
+  if(q.length < 2){ searchDropdown.classList.remove('visible'); return; }
+  const results = SEARCH_DATA.filter(d =>
+    d.title.toLowerCase().includes(q) || d.cat.toLowerCase().includes(q)
+  ).slice(0, 6);
+  if(results.length === 0){
+    searchDropdown.innerHTML = '<div class="search-no-result">Aucun résultat trouvé dans les archives.</div>';
+  } else {
+    results.forEach(r => {
+      const el = document.createElement('a');
+      el.className = 'search-result';
+      el.href = '#';
+      el.innerHTML = '<span class="search-result-cat">'+r.cat+'</span><span class="search-result-title">'+r.title+'</span>';
+      searchDropdown.appendChild(el);
+    });
+  }
+  searchDropdown.classList.add('visible');
+});
+
+document.addEventListener('click', e => {
+  if(!document.querySelector('.hero-search-wrap').contains(e.target)){
+    searchDropdown.classList.remove('visible');
+  }
+});
 
 updatePreview();
 initCarousel();
