@@ -47,7 +47,8 @@
       position:fixed;
       top:0;left:0;right:0;
       z-index:100;
-      display:flex;
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
       align-items:center;
       height:72px;
       padding:0 2.5rem;
@@ -59,11 +60,11 @@
       position:absolute;
       top:0;left:0;right:0;
       height:120px;
-      background:linear-gradient(to bottom,rgba(10,8,5,0.6) 0%,transparent 100%);
+      background:linear-gradient(to bottom,rgba(10,8,5,0.65) 0%,transparent 100%);
       pointer-events:none;
     }
 
-    /* Logo — à gauche, même ligne que les liens */
+    /* Logo — à gauche */
     .header-logo{
       font-family:'Cinzel',serif;
       font-size:1rem;
@@ -71,18 +72,16 @@
       letter-spacing:0.18em;
       text-decoration:none;
       white-space:nowrap;
-      text-shadow:0 1px 8px rgba(0,0,0,0.8);
-      flex-shrink:0;
+      text-shadow:0 1px 8px rgba(0,0,0,0.9);
       position:relative;
       z-index:1;
     }
 
-    /* Navigation — pousse les liens vers la droite */
+    /* Navigation — centrée */
     .header-nav{
-      flex:1;
       display:flex;
       align-items:center;
-      justify-content:flex-end;
+      justify-content:center;
       position:relative;
       z-index:1;
     }
@@ -92,20 +91,72 @@
       gap:0;
     }
     .header-nav a{
-      color:rgba(255,255,255,0.9);
-      font-weight:600;
+      color:rgba(255,255,255,0.92);
+      font-weight:700;
       text-decoration:none;
       font-family:'Cinzel',serif;
-      font-size:0.82rem;
+      font-size:0.85rem;
       letter-spacing:0.15em;
       text-transform:uppercase;
-      padding:0.5rem 1.2rem;
+      padding:0.5rem 1.1rem;
       border-bottom:2px solid transparent;
+      transition:all 0.25s;
+      white-space:nowrap;
+      text-shadow:0 1px 8px rgba(0,0,0,0.9);
+    }
+    .header-nav a:hover{color:#fff;border-bottom-color:var(--gold);}
+
+    /* Zone droite — bouton connexion */
+    .header-right{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      position:relative;
+      z-index:1;
+    }
+    .login-btn{
+      font-family:'Cinzel',serif;
+      font-size:0.75rem;
+      font-weight:700;
+      letter-spacing:0.2em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.85);
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.2);
+      padding:0.5rem 1.2rem;
+      cursor:pointer;
       transition:all 0.25s;
       white-space:nowrap;
       text-shadow:0 1px 6px rgba(0,0,0,0.8);
     }
-    .header-nav a:hover{color:#fff;border-bottom-color:var(--gold);}
+    .login-btn:hover{background:rgba(201,168,76,0.15);border-color:var(--gold-dim);color:var(--gold);}
+
+    /* Panneau de connexion (dropdown) */
+    #login-panel{
+      display:none;
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      width:300px;
+      background:rgba(13,11,9,0.97);
+      border:1px solid var(--border);
+      padding:2rem;
+      flex-direction:column;
+      gap:1rem;
+      z-index:200;
+    }
+    #login-panel.open{display:flex;}
+    .login-panel-title{font-family:'Cinzel',serif;font-size:0.85rem;color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.5rem;}
+    .login-field{display:flex;flex-direction:column;gap:0.4rem;}
+    .login-field label{font-family:'Cinzel',serif;font-size:0.65rem;color:rgba(255,255,255,0.45);letter-spacing:0.15em;text-transform:uppercase;}
+    .login-field input{background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.2);padding:0.65rem 0.9rem;color:#fff;font-family:'Crimson Pro',serif;font-size:1rem;outline:none;transition:border-color 0.3s;}
+    .login-field input:focus{border-color:var(--gold-dim);}
+    .login-submit{background:var(--gold);color:#0d0b09;font-family:'Cinzel',serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;padding:0.8rem;border:none;cursor:pointer;transition:background 0.25s;margin-top:0.5rem;}
+    .login-submit:hover{background:var(--gold-bright);}
+    .login-divider{height:1px;background:rgba(255,255,255,0.08);margin:0.5rem 0;}
+    .login-toggle{font-size:0.85rem;color:rgba(255,255,255,0.45);text-align:center;cursor:pointer;transition:color 0.2s;}
+    .login-toggle:hover{color:var(--gold);}
+    .login-toggle span{color:var(--gold);text-decoration:underline;}
 
     /* Barre de recherche — supprimée du header */
     .header-search{ display:none; }
@@ -440,6 +491,7 @@
   <header class="site-header" id="siteHeader">
     <!-- Logo centré (visible après scroll) -->
     <a class="header-logo" href="#">L'Ordre des Lanternes</a>
+
     <!-- Navigation centrée -->
     <nav class="header-nav">
       <div class="header-nav-links">
@@ -451,6 +503,33 @@
         <a href="#" onclick="openLanternerie(event)">Lanternerie</a>
       </div>
     </nav>
+
+    <!-- Droite — connexion -->
+    <div class="header-right">
+      <button class="login-btn" onclick="toggleLogin(event)">⚔ Se connecter</button>
+      <div id="login-panel">
+        <div class="login-panel-title" id="login-panel-title">Connexion</div>
+        <div class="login-field">
+          <label>Adresse email</label>
+          <input type="email" placeholder="votre@email.com">
+        </div>
+        <div class="login-field" id="pseudo-field" style="display:none">
+          <label>Pseudo (nom de Lanterneur)</label>
+          <input type="text" placeholder="Votre pseudo">
+        </div>
+        <div class="login-field">
+          <label>Mot de passe</label>
+          <input type="password" placeholder="••••••••">
+        </div>
+        <div class="login-field" id="confirm-field" style="display:none">
+          <label>Confirmer le mot de passe</label>
+          <input type="password" placeholder="••••••••">
+        </div>
+        <button class="login-submit" id="login-submit-btn">Entrer dans l'Ordre</button>
+        <div class="login-divider"></div>
+        <div class="login-toggle" onclick="toggleMode()">Pas encore de compte ? <span>S'inscrire</span></div>
+      </div>
+    </div>
   </header>
 
   <!-- HERO PLEIN ÉCRAN -->
@@ -623,6 +702,27 @@ document.getElementById('trailToggle').addEventListener('change',function(){trai
 function updatePreview(){document.getElementById('colorPreview').style.background='hsl('+trailH+','+trailS+'%,'+trailL+'%)';}
 function clearPresets(){document.querySelectorAll('.preset').forEach(p=>p.classList.remove('selected'));}
 (function(){const c=document.getElementById('presetColors');PRESETS.forEach((p,i)=>{const el=document.createElement('div');el.className='preset'+(i===0?' selected':'');el.title=p.name;el.style.background='hsl('+p.h+','+p.s+'%,'+p.l+'%)';el.onclick=()=>{trailH=p.h;trailS=p.s;trailL=p.l;document.getElementById('brightnessSlider').value=p.l;updatePreview();clearPresets();el.classList.add('selected');};c.appendChild(el);});})();
+
+/* CONNEXION */
+let isRegisterMode = false;
+function toggleLogin(e){
+  e.stopPropagation();
+  document.getElementById('login-panel').classList.toggle('open');
+}
+function toggleMode(){
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('pseudo-field').style.display = isRegisterMode ? 'flex' : 'none';
+  document.getElementById('confirm-field').style.display = isRegisterMode ? 'flex' : 'none';
+  document.getElementById('login-panel-title').textContent = isRegisterMode ? 'Créer un compte' : 'Connexion';
+  document.getElementById('login-submit-btn').textContent = isRegisterMode ? 'Rejoindre l\'Ordre' : 'Entrer dans l\'Ordre';
+  document.querySelector('.login-toggle').innerHTML = isRegisterMode
+    ? 'Déjà un compte ? <span>Se connecter</span>'
+    : 'Pas encore de compte ? <span>S\'inscrire</span>';
+}
+document.addEventListener('click', e => {
+  const panel = document.getElementById('login-panel');
+  if(panel && !panel.parentElement.contains(e.target)) panel.classList.remove('open');
+});
 
 /* RECHERCHE */
 const SEARCH_DATA = [
