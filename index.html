@@ -197,12 +197,12 @@
     }
 
     /* ═══════════════════════════════
-       HERO — PLEIN ÉCRAN CINÉMATIQUE
+       HERO — pas 100vh, on voit le début du bandeau
     ═══════════════════════════════ */
     .hero{
       position:relative;
-      height:100vh;
-      min-height:600px;
+      height:88vh;
+      min-height:520px;
       overflow:hidden;
     }
     .hero-track{
@@ -303,9 +303,9 @@
     .dot.active{background:var(--gold);width:22px;border-radius:3px;}
 
     /* ═══════════════════════════════
-       BANDEAUX SECTIONS
+       BANDEAUX — hauteur égale, on voit toujours le suivant
     ═══════════════════════════════ */
-    .banner{position:relative;height:480px;overflow:hidden;display:flex;align-items:center;border-top:1px solid var(--border);}
+    .banner{position:relative;height:82vh;min-height:420px;overflow:hidden;display:flex;align-items:center;border-top:1px solid var(--border);}
     .banner-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 0.6s ease;}
     .banner:hover .banner-bg{transform:scale(1.03);}
     .banner-bg.placeholder{background:linear-gradient(135deg,#1c1813 0%,#2a2218 50%,#1c1813 100%);}
