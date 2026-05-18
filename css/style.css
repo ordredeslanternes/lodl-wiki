@@ -275,6 +275,29 @@ body {
   gap: 1rem; position: relative; z-index: 1;
 }
 
+/* Groups .mobile-login-icon and .mobile-menu-btn on mobile so space-between
+   keeps them as a single unit on the right when the wordmark is visible */
+.header-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Mobile-only login icon: hidden on desktop, revealed via media query */
+.mobile-login-icon {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s;
+}
+.mobile-login-icon:hover { border-color: var(--gold); color: var(--gold); }
+
 
 /* ================================================================
    8. MOBILE MENU BUTTON (hamburger)
@@ -674,16 +697,20 @@ footer {
   .header-nav { display: none; }
   .login-btn  { display: none; }
 
-  /* Reveal hamburger */
-  .mobile-menu-btn { display: flex; }
+  /* Reveal hamburger and mobile login icon */
+  .mobile-menu-btn   { display: flex; }
+  .mobile-login-icon { display: flex; }
+
+  /* Tighter gap between elements on mobile */
+  .header-right { gap: 0.6rem; }
 
   /* Lang-switcher stays in .header-right's flex flow */
   .lang-switcher { display: flex; }
 
   /*
-    Default: lang-switcher and hamburger together on the RIGHT (flex-end inherited).
-    When the wordmark is showing (.logo-visible on .site-header), spread them
-    left ↔ right so the centered wordmark has clear space between them.
+    Default: lang-switcher and .header-right-actions together on the RIGHT (flex-end).
+    When the wordmark is showing (.logo-visible on .site-header), space-between
+    pushes .lang-switcher LEFT and .header-right-actions RIGHT as a grouped unit.
   */
   .site-header.logo-visible .header-right {
     justify-content: space-between;
@@ -781,8 +808,10 @@ footer {
     padding-top: 1.5rem;
   }
 
-  /* Hide sidebar on mobile — links are in the footer */
-  .social-sidebar { display: none; }
+  /* Sidebar stays visible on mobile — already fixed-position and collapsed to icon width.
+     Shrink to 36px so it takes less edge space on narrow screens. */
+  .social-sidebar { width: 36px; }
+  .social-sidebar-link { padding-left: 8px; }
 
   /* Footer social links: smaller gap */
   .footer-social { gap: 1.2rem; }

@@ -223,18 +223,25 @@
           data-i18n="header.loginBtn"
         >⚔ Se connecter</button>
 
-        <!-- Circular hamburger button (mobile only — hidden on desktop via CSS) -->
-        <button
-          class="mobile-menu-btn"
-          id="mobileMenuBtn"
-          aria-label="Ouvrir le menu"
-          aria-expanded="false"
-          aria-controls="mobileMenu"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+        <!-- Mobile-only: login icon + hamburger grouped so space-between keeps them together on the right -->
+        <div class="header-right-actions">
+
+          <button class="mobile-login-icon" onclick="toggleLogin(event)" aria-label="Se connecter" aria-expanded="false">⚔</button>
+
+          <!-- Circular hamburger button (mobile only — hidden on desktop via CSS) -->
+          <button
+            class="mobile-menu-btn"
+            id="mobileMenuBtn"
+            aria-label="Ouvrir le menu"
+            aria-expanded="false"
+            aria-controls="mobileMenu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+        </div><!-- /.header-right-actions -->
 
         <!-- Login/register dropdown -->
         <div id="login-panel" role="dialog" aria-label="Connexion ou inscription">
