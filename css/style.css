@@ -231,8 +231,8 @@ body {
 /* Wordmark image: starts invisible, transitions to full opacity on .logo-visible */
 .header-wordmark {
   display: block;
-  height: 58px;
-  max-height: 58px;
+  height: 64px;
+  max-height: 64px;
   max-width: none; /* height alone governs size; aspect ratio is preserved via width: auto */
   width: auto;
   opacity: 0;
@@ -465,6 +465,7 @@ body {
   font-family: var(--font-title); font-size: 0.72rem;
   letter-spacing: 0.5em; color: #fff; text-transform: uppercase;
   margin-bottom: 1.5rem; opacity: 0.85; text-shadow: 0 1px 8px rgba(0,0,0,0.9);
+  display: none;
 }
 .hero-main-title {
   font-family: var(--font-title);
@@ -676,18 +677,17 @@ footer {
   /* Reveal hamburger */
   .mobile-menu-btn { display: flex; }
 
+  /* Lang-switcher stays in .header-right's flex flow */
+  .lang-switcher { display: flex; }
+
   /*
-    .header-right is the only item left in the grid flow (logo is absolute,
-    nav is hidden). It fills the full header width. Switching to space-between
-    places .lang-switcher on the LEFT and .mobile-menu-btn on the RIGHT,
-    with the absolutely-centered wordmark floating between them.
+    Default: lang-switcher and hamburger together on the RIGHT (flex-end inherited).
+    When the wordmark is showing (.logo-visible on .site-header), spread them
+    left ↔ right so the centered wordmark has clear space between them.
   */
-  .header-right {
+  .site-header.logo-visible .header-right {
     justify-content: space-between;
   }
-
-  /* Lang-switcher stays in .header-right's flex flow — space-between does the rest */
-  .lang-switcher { display: flex; }
 
   /* Wordmark absolutely centered in the header bar, above the flex row */
   .header-logo {
@@ -801,7 +801,7 @@ footer {
 ================================================================ */
 @media (max-width: 420px) {
   .hero-main-title { font-size: clamp(1.8rem, 9vw, 2.8rem); }
-  .hero-tagline    { display: none; } /* too cluttered on tiny screens */
+  .hero-tagline    { font-size: 0.85rem; }
   .banner { min-height: 50vh; }
   .featured { padding: 2rem 1rem; }
   .footer-social { gap: 0.8rem; }

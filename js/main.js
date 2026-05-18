@@ -498,18 +498,21 @@ function initSearch() {
    11. HERO LOGO OBSERVER
    Uses IntersectionObserver to watch .hero-main-title.
    When the title scrolls out of the viewport, adds .logo-visible to
-   .header-logo so the wordmark fades in. Removes it when the title
-   scrolls back into view (user returns to the top).
+   both .header-logo (fades in the wordmark) and .site-header (triggers
+   the CSS space-between layout for the lang-switcher on mobile).
+   Both classes are removed when the title scrolls back into view.
 ================================================================ */
 function initLogoObserver() {
   const heroTitle  = document.querySelector('.hero-main-title');
   const headerLogo = document.querySelector('.header-logo');
+  const siteHeader = document.querySelector('.site-header');
   if (!heroTitle || !headerLogo) return;
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
-      /* Toggle .logo-visible: true when title is NOT intersecting */
-      headerLogo.classList.toggle('logo-visible', !entry.isIntersecting);
+      const visible = !entry.isIntersecting;
+      headerLogo.classList.toggle('logo-visible', visible);
+      if (siteHeader) siteHeader.classList.toggle('logo-visible', visible);
     });
   }, { threshold: 0 });
 
