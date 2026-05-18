@@ -231,9 +231,9 @@ body {
 /* Wordmark image: starts invisible, transitions to full opacity on .logo-visible */
 .header-wordmark {
   display: block;
-  height: 48px;
-  max-height: 48px;
-  max-width: 100%;
+  height: 58px;
+  max-height: 58px;
+  max-width: none; /* height alone governs size; aspect ratio is preserved via width: auto */
   width: auto;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -662,7 +662,8 @@ footer {
 ================================================================ */
 @media (max-width: 1100px) {
 
-  /* Collapse the 3-column header: logo centered absolutely, header-right pinned right */
+  /* Grid collapses; .header-logo and .header-nav leave the flow (see below),
+     leaving .header-right as the sole grid item spanning the full row. */
   .site-header {
     grid-template-columns: 1fr auto;
     padding: 0 1.5rem;
@@ -672,20 +673,23 @@ footer {
   .header-nav { display: none; }
   .login-btn  { display: none; }
 
-  /*
-    Keep lang-switcher always visible in the header bar on mobile.
-    It sits inside .header-right, next to the hamburger button.
-  */
-  .lang-switcher { display: flex; }
-
-  /* Reveal the circular hamburger button */
+  /* Reveal hamburger */
   .mobile-menu-btn { display: flex; }
 
   /*
-    Remove wordmark from grid flow and center it absolutely within the
-    fixed header bar. .header-right (flex container) naturally right-aligns
-    its children (lang-switcher + hamburger) and fills the remaining space.
+    .header-right is the only item left in the grid flow (logo is absolute,
+    nav is hidden). It fills the full header width. Switching to space-between
+    places .lang-switcher on the LEFT and .mobile-menu-btn on the RIGHT,
+    with the absolutely-centered wordmark floating between them.
   */
+  .header-right {
+    justify-content: space-between;
+  }
+
+  /* Lang-switcher stays in .header-right's flex flow — space-between does the rest */
+  .lang-switcher { display: flex; }
+
+  /* Wordmark absolutely centered in the header bar, above the flex row */
   .header-logo {
     position: absolute;
     left: 50%;
