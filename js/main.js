@@ -1,24 +1,45 @@
-/* ============================================
+/* ================================================================
    L'ORDRE DES LANTERNES — Wiki
-   main.js — script principal
-   ============================================ */
+   main.js — Main script
+   ================================================================
+   Author:      Willy Dessalines
+   Project:     L'Ordre des Lanternes (LODL)
 
-/* ══════════════════════════════════════
-   VARIABLES GLOBALES
-   (déclarées ici pour être accessibles partout)
-══════════════════════════════════════ */
-const PASSWORD = "lanternes2025";
-const TOTAL    = 8;
+   TABLE OF CONTENTS
+   -----------------
+   1.  Global constants & state
+   2.  i18n engine
+   3.  Password gate
+   4.  Carousel (with tab-switch fix)
+   5.  Sylph cursor trail
+   6.  Lanternerie panel
+   7.  Login / register panel
+   8.  Mobile menu (hamburger)
+   9.  Search bar
+   10. Initialization (DOMContentLoaded)
+   11. Hero logo observer (wordmark reveal on scroll)
+================================================================ */
 
-let cur            = 0;
-let isTransitioning = false;
-let trailH         = 42;
-let trailS         = 85;
-let trailL         = 65;
-let trailActive    = true;
-let isRegisterMode = false;
 
-const PRESETS = [
+/* ================================================================
+   1. GLOBAL CONSTANTS & STATE
+================================================================ */
+const PASSWORD    = 'lanternes2025'; /* TODO (Phase 2): Remove — replaced by Supabase Auth */
+const TOTAL_SLIDES = 8;
+
+let currentSlide     = 0;
+let isTransitioning  = false;
+let carouselInterval = null;
+
+let trailH      = 42;
+let trailS      = 85;
+let trailL      = 65;
+let trailActive = true;
+
+let isRegisterMode  = false;
+let mobileMenuOpen  = false;
+
+const COLOR_PRESETS = [
   { name: 'Or',     h: 42,  s: 85, l: 65 },
   { name: 'Bleu',   h: 210, s: 90, l: 65 },
   { name: 'Violet', h: 270, s: 80, l: 65 },
@@ -29,354 +50,524 @@ const PRESETS = [
   { name: 'Rose',   h: 320, s: 80, l: 70 },
 ];
 
-const SEARCH_DATA = [
-  { cat: 'Le Monde',       title: "Terre d'Ailleurs" },
-  { cat: 'Le Monde',       title: 'La Terre Sablière' },
-  { cat: 'Le Monde',       title: 'La Terre des Géants' },
-  { cat: 'Le Monde',       title: 'Les Portails' },
-  { cat: 'Le Monde',       title: 'Le Monde Commun' },
-  { cat: "L'Histoire",     title: "La Fondation de l'Ordre" },
-  { cat: "L'Histoire",     title: 'La Guerre des Lanternes' },
-  { cat: "L'Histoire",     title: "L'Ère des Sylphes" },
-  { cat: 'Organisations',  title: "L'Ordre des Lanternes" },
-  { cat: 'Organisations',  title: 'Les Ligues' },
-  { cat: 'Organisations',  title: 'Le Tribunal des Lanternes' },
-  { cat: 'Personnages',    title: 'Chloé' },
-  { cat: 'Personnages',    title: 'Cloche' },
-  { cat: 'Personnages',    title: 'Merlin' },
-  { cat: 'Personnages',    title: 'Galaad du Lac' },
-  { cat: 'Magie',          title: 'Les Sylphes' },
-  { cat: 'Magie',          title: 'La Brume Crépusculaire' },
-  { cat: 'Magie',          title: 'Les Lanternes' },
-  { cat: 'Glossaire',      title: 'Lanterneur / Lanterneuse' },
-  { cat: 'Glossaire',      title: 'Sylphe' },
-  { cat: 'Glossaire',      title: 'Ailleurs' },
+/*
+  Static search index.
+  TODO (Phase 1): Replace with dynamic Sanity CMS queries.
+*/
+const SEARCH_INDEX = [
+  { cat: 'Le Monde',      title: "Terre d'Ailleurs" },
+  { cat: 'Le Monde',      title: 'La Terre Sablière' },
+  { cat: 'Le Monde',      title: 'La Terre des Géants' },
+  { cat: 'Le Monde',      title: 'Les Portails' },
+  { cat: 'Le Monde',      title: 'Le Monde Commun' },
+  { cat: "L'Histoire",    title: "La Fondation de l'Ordre" },
+  { cat: "L'Histoire",    title: 'La Guerre des Lanternes' },
+  { cat: "L'Histoire",    title: "L'Ère des Sylphes" },
+  { cat: 'Organisations', title: "L'Ordre des Lanternes" },
+  { cat: 'Organisations', title: 'Les Ligues' },
+  { cat: 'Organisations', title: 'Le Tribunal des Lanternes' },
+  { cat: 'Personnages',   title: 'Chloé' },
+  { cat: 'Personnages',   title: 'Cloche' },
+  { cat: 'Personnages',   title: 'Merlin' },
+  { cat: 'Personnages',   title: 'Galaad du Lac' },
+  { cat: 'Magie',         title: 'Les Sylphes' },
+  { cat: 'Magie',         title: 'La Brume Crépusculaire' },
+  { cat: 'Magie',         title: 'Les Lanternes' },
+  { cat: 'Glossaire',     title: 'Lanterneur / Lanterneuse' },
+  { cat: 'Glossaire',     title: 'Sylphe' },
+  { cat: 'Glossaire',     title: 'Ailleurs' },
 ];
 
-/* ══════════════════════════════════════
-   FONCTIONS GLOBALES
-   (appelées depuis les onclick="" du HTML)
-══════════════════════════════════════ */
 
+/* ================================================================
+   2. i18n ENGINE
+   Switches UI language between French and English.
+   Translation strings are in locales/fr.js and locales/en.js.
+================================================================ */
+let currentLang = localStorage.getItem('lodl-lang') || 'fr';
+
+function getTranslation(key, lang) {
+  const t = lang === 'en' ? LODL_LANG_EN : LODL_LANG_FR;
+  return key.split('.').reduce((obj, part) => obj && obj[part], t) || key;
+}
+
+function applyTranslations(lang) {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const t = getTranslation(el.getAttribute('data-i18n'), lang);
+    if (t && t !== el.getAttribute('data-i18n')) el.textContent = t;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const t = getTranslation(el.getAttribute('data-i18n-placeholder'), lang);
+    if (t && t !== el.getAttribute('data-i18n-placeholder')) el.placeholder = t;
+  });
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('data-lang', lang);
+  document.querySelectorAll('.lang-btn, .mobile-lang-btn').forEach(btn => {
+    const active = btn.getAttribute('data-lang') === lang;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+}
+
+/* Called from onclick="setLanguage('fr')" in HTML */
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('lodl-lang', lang);
+  applyTranslations(lang);
+}
+
+
+/* ================================================================
+   3. PASSWORD GATE
+   Client-side check. TODO (Phase 2): Replace with Supabase Auth.
+================================================================ */
 function checkPassword() {
-  const input = document.getElementById('pwd-input');
+  const input   = document.getElementById('pwd-input');
+  const errorEl = document.getElementById('gate-error');
   if (input.value === PASSWORD) {
-    document.getElementById('gate').style.display  = 'none';
-    document.getElementById('wiki').style.display  = 'block';
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('wiki').style.display = 'block';
     sessionStorage.setItem('lodl-auth', '1');
   } else {
-    document.getElementById('gate-error').textContent = 'Mot de passe incorrect. Les archives restent scellées.';
+    errorEl.textContent = getTranslation('gate.error', currentLang);
     input.value = '';
     input.focus();
   }
 }
 
-function openLanternerie(e) {
-  e.preventDefault();
-  document.getElementById('lanternerie-panel').classList.add('open');
-}
 
-function closeLanternerie() {
-  document.getElementById('lanternerie-panel').classList.remove('open');
-}
-
-function toggleLogin(e) {
-  e.stopPropagation();
-  document.getElementById('login-panel').classList.toggle('open');
-}
-
-function toggleMode() {
-  isRegisterMode = !isRegisterMode;
-  document.getElementById('pseudo-field').style.display   = isRegisterMode ? 'flex' : 'none';
-  document.getElementById('confirm-field').style.display  = isRegisterMode ? 'flex' : 'none';
-  document.getElementById('login-panel-title').textContent = isRegisterMode ? 'Créer un compte' : 'Connexion';
-  document.getElementById('login-submit-btn').textContent  = isRegisterMode ? "Rejoindre l'Ordre" : "Entrer dans l'Ordre";
-  document.querySelector('.login-toggle').innerHTML = isRegisterMode
-    ? 'Déjà un compte ? <span>Se connecter</span>'
-    : 'Pas encore de compte ? <span>S\'inscrire</span>';
-}
-
-function updatePreview() {
-  document.getElementById('colorPreview').style.background = `hsl(${trailH},${trailS}%,${trailL}%)`;
-}
-
-function clearPresets() {
-  document.querySelectorAll('.preset').forEach(p => p.classList.remove('selected'));
-}
-
-function updateDots(active) {
-  document.querySelectorAll('.dot').forEach((d, i) => {
-    d.className = 'dot' + (i === active ? ' active' : '');
-  });
-}
-
-/* ══════════════════════════════════════
-   CARROUSEL
-══════════════════════════════════════ */
-
-function moveTo(index, animate) {
+/* ================================================================
+   4. CAROUSEL
+   Infinite auto-advancing slideshow.
+   Tab-switch bug fix: stops/restarts interval on visibilitychange.
+================================================================ */
+function moveCarouselTo(index, animate) {
   ['heroTrack', 'gateTrack'].forEach(id => {
-    const t = document.getElementById(id);
-    if (!t) return;
-    t.style.transition = animate ? 'transform 1.1s cubic-bezier(0.77,0,0.175,1)' : 'none';
-    t.style.transform  = `translateX(-${index * 100}%)`;
+    const track = document.getElementById(id);
+    if (!track) return;
+    track.style.transition = animate
+      ? 'transform 1.1s cubic-bezier(0.77,0,0.175,1)'
+      : 'none';
+    track.style.transform = `translateX(-${index * 100}%)`;
   });
 }
 
-function jumpTo(index) {
+function jumpCarouselTo(index) {
   ['heroTrack', 'gateTrack'].forEach(id => {
-    const t = document.getElementById(id);
-    if (!t) return;
-    t.style.transition = 'none';
-    t.style.transform  = `translateX(-${index * 100}%)`;
-    t.offsetHeight; // force le recalcul du navigateur
+    const track = document.getElementById(id);
+    if (!track) return;
+    track.style.transition = 'none';
+    track.style.transform  = `translateX(-${index * 100}%)`;
+    track.offsetHeight; /* Force reflow */
   });
 }
 
-function advance() {
+function updateCarouselDots(activeIndex) {
+  document.querySelectorAll('.dot').forEach((dot, i) => {
+    dot.className = 'dot' + (i === activeIndex ? ' active' : '');
+    dot.setAttribute('aria-selected', i === activeIndex ? 'true' : 'false');
+  });
+}
+
+function advanceCarousel() {
   if (isTransitioning) return;
   isTransitioning = true;
-  cur++;
-  moveTo(cur, true);
-  updateDots(cur >= TOTAL ? 0 : cur);
+  currentSlide++;
+  moveCarouselTo(currentSlide, true);
+  updateCarouselDots(currentSlide >= TOTAL_SLIDES ? 0 : currentSlide);
   setTimeout(() => { isTransitioning = false; }, 1400);
 }
 
-function goTo(n) {
+function goToSlide(index) {
   if (isTransitioning) return;
   isTransitioning = true;
-  cur = n;
-  moveTo(n, true);
-  updateDots(n);
+  currentSlide    = index;
+  moveCarouselTo(index, true);
+  updateCarouselDots(index);
+}
+
+function startCarouselInterval() {
+  if (carouselInterval) clearInterval(carouselInterval);
+  carouselInterval = setInterval(advanceCarousel, 5000);
 }
 
 function initCarousel() {
-  const dots = document.getElementById('heroDots');
-  for (let i = 0; i < TOTAL; i++) {
-    const d = document.createElement('div');
-    d.className = 'dot' + (i === 0 ? ' active' : '');
-    d.onclick = () => goTo(i);
-    dots.appendChild(d);
+  const dotsContainer = document.getElementById('heroDots');
+  if (!dotsContainer) return;
+
+  for (let i = 0; i < TOTAL_SLIDES; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('role', 'tab');
+    dot.setAttribute('aria-label', `Diapositive ${i + 1}`);
+    dot.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    dot.onclick = () => goToSlide(i);
+    dotsContainer.appendChild(dot);
   }
 
-  setInterval(advance, 5000);
+  startCarouselInterval();
 
   const heroTrack = document.getElementById('heroTrack');
   if (heroTrack) {
     heroTrack.addEventListener('transitionend', e => {
       if (e.propertyName !== 'transform') return;
-      if (cur === TOTAL) {
-        cur = 0;
-        jumpTo(0);
-      }
+      if (currentSlide === TOTAL_SLIDES) { currentSlide = 0; jumpCarouselTo(0); }
       isTransitioning = false;
     });
   }
+
+  /* Tab visibility fix */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(carouselInterval);
+      carouselInterval = null;
+    } else {
+      isTransitioning = false;
+      if (currentSlide >= TOTAL_SLIDES) currentSlide = 0;
+      jumpCarouselTo(currentSlide);
+      setTimeout(startCarouselInterval, 300);
+    }
+  });
 }
 
-/* ══════════════════════════════════════
-   CURSEUR SYLPHE (filament de lumière)
-══════════════════════════════════════ */
 
-function initCursor() {
+/* ================================================================
+   5. SYLPH CURSOR TRAIL
+   Glowing particles following the mouse.
+   Disabled on touch devices (no mouse cursor).
+================================================================ */
+function initCursorTrail() {
+  /* Skip on touch devices */
+  if (window.matchMedia('(hover: none)').matches) return;
+
   const canvas = document.getElementById('cursorCanvas');
-  const ctx    = canvas.getContext('2d');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
 
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
-
   window.addEventListener('resize', () => {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
   });
 
-  const pts = [];
+  const particles = [];
 
   window.addEventListener('mousemove', e => {
     if (!trailActive) return;
     for (let i = 0; i < 4; i++) {
-      pts.push({
-        x:    e.clientX + (Math.random() - .5) * 12,
-        y:    e.clientY + (Math.random() - .5) * 12,
-        vx:   (Math.random() - .5) * 2.5,
-        vy:   (Math.random() - .5) * 2.5 - .8,
-        life: 1,
-        size: Math.random() * 3 + 1.5,
+      particles.push({
+        x: e.clientX + (Math.random() - 0.5) * 12,
+        y: e.clientY + (Math.random() - 0.5) * 12,
+        vx: (Math.random() - 0.5) * 2.5,
+        vy: (Math.random() - 0.5) * 2.5 - 0.8,
+        life: 1, size: Math.random() * 3 + 1.5,
       });
     }
   });
 
-  (function loop() {
+  (function renderLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (trailActive) {
-      for (let i = pts.length - 1; i >= 0; i--) {
-        const p = pts[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= 0.028;
-        p.size *= 0.975;
-        if (p.life <= 0) { pts.splice(i, 1); continue; }
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy; p.life -= 0.028; p.size *= 0.975;
+        if (p.life <= 0) { particles.splice(i, 1); continue; }
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle    = `hsla(${trailH},${trailS}%,${trailL}%,${p.life * 0.9})`;
-        ctx.shadowBlur   = 12;
-        ctx.shadowColor  = `hsla(${trailH},100%,${trailL}%,${p.life})`;
+        ctx.fillStyle   = `hsla(${trailH},${trailS}%,${trailL}%,${p.life * 0.9})`;
+        ctx.shadowBlur  = 12;
+        ctx.shadowColor = `hsla(${trailH},100%,${trailL}%,${p.life})`;
         ctx.fill();
       }
     }
-    requestAnimationFrame(loop);
+    requestAnimationFrame(renderLoop);
   })();
 }
 
-/* ══════════════════════════════════════
-   ROUE CHROMATIQUE (Lanternerie)
-══════════════════════════════════════ */
+
+/* ================================================================
+   6. LANTERNERIE PANEL
+================================================================ */
+function openLanternerie(e) {
+  e.preventDefault();
+  closeMobileMenu(); /* Close mobile menu if open */
+  const panel = document.getElementById('lanternerie-panel');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+}
+
+function closeLanternerie() {
+  const panel = document.getElementById('lanternerie-panel');
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+}
+
+function updateColorPreview() {
+  const p = document.getElementById('colorPreview');
+  if (p) p.style.background = `hsl(${trailH},${trailS}%,${trailL}%)`;
+}
+
+function clearPresetSelection() {
+  document.querySelectorAll('.preset').forEach(p => p.classList.remove('selected'));
+}
 
 function initColorWheel() {
   const canvas = document.getElementById('colorWheel');
-  const ctx    = canvas.getContext('2d');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
   const cx = 90, cy = 90, r = 85;
-
   for (let a = 0; a < 360; a++) {
-    const start = (a - 1) * Math.PI / 180;
-    const end   = (a + 1) * Math.PI / 180;
-    const g     = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
     g.addColorStop(0, 'white');
     g.addColorStop(1, `hsl(${a},100%,50%)`);
     ctx.beginPath();
     ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, start, end);
-    ctx.closePath();
-    ctx.fillStyle = g;
-    ctx.fill();
+    ctx.arc(cx, cy, r, (a-1)*Math.PI/180, (a+1)*Math.PI/180);
+    ctx.closePath(); ctx.fillStyle = g; ctx.fill();
   }
-
   function pick(e) {
     const rect = canvas.getBoundingClientRect();
-    const x    = e.clientX - rect.left - cx;
-    const y    = e.clientY - rect.top  - cy;
-    const dist = Math.sqrt(x * x + y * y);
+    const x = e.clientX - rect.left - cx;
+    const y = e.clientY - rect.top  - cy;
+    const dist = Math.sqrt(x*x + y*y);
     if (dist > r) return;
     let a = Math.atan2(y, x) * 180 / Math.PI;
     if (a < 0) a += 360;
     trailH = Math.round(a);
-    trailS = Math.round((dist / r) * 85 + 15);
-    updatePreview();
-    clearPresets();
+    trailS = Math.round((dist/r) * 85 + 15);
+    updateColorPreview(); clearPresetSelection();
   }
-
-  canvas.addEventListener('mousedown', e => {
-    pick(e);
-    canvas.addEventListener('mousemove', pick);
-  });
+  canvas.addEventListener('mousedown', e => { pick(e); canvas.addEventListener('mousemove', pick); });
   window.addEventListener('mouseup', () => canvas.removeEventListener('mousemove', pick));
 }
 
-function initPresets() {
+function initColorPresets() {
   const container = document.getElementById('presetColors');
-  PRESETS.forEach((p, i) => {
-    const el = document.createElement('div');
-    el.className = 'preset' + (i === 0 ? ' selected' : '');
-    el.title     = p.name;
-    el.style.background = `hsl(${p.h},${p.s}%,${p.l}%)`;
-    el.onclick = () => {
-      trailH = p.h; trailS = p.s; trailL = p.l;
-      document.getElementById('brightnessSlider').value = p.l;
-      updatePreview();
-      clearPresets();
-      el.classList.add('selected');
+  if (!container) return;
+  COLOR_PRESETS.forEach((preset, i) => {
+    const s = document.createElement('div');
+    s.className = 'preset' + (i === 0 ? ' selected' : '');
+    s.title     = preset.name;
+    s.setAttribute('role', 'button');
+    s.setAttribute('aria-label', preset.name);
+    s.style.background = `hsl(${preset.h},${preset.s}%,${preset.l}%)`;
+    s.onclick = () => {
+      trailH = preset.h; trailS = preset.s; trailL = preset.l;
+      const sl = document.getElementById('brightnessSlider');
+      if (sl) sl.value = preset.l;
+      updateColorPreview(); clearPresetSelection(); s.classList.add('selected');
     };
-    container.appendChild(el);
+    container.appendChild(s);
   });
 }
 
-/* ══════════════════════════════════════
-   RECHERCHE
-══════════════════════════════════════ */
 
+/* ================================================================
+   7. LOGIN / REGISTER PANEL
+   TODO (Phase 2): Connect to Supabase Auth.
+================================================================ */
+function toggleLogin(e) {
+  e.stopPropagation();
+  const panel  = document.getElementById('login-panel');
+  const isOpen = panel.classList.toggle('open');
+  e.currentTarget.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
+function toggleMode() {
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('pseudo-field').style.display  = isRegisterMode ? 'flex' : 'none';
+  document.getElementById('confirm-field').style.display = isRegisterMode ? 'flex' : 'none';
+  const titleEl = document.getElementById('login-panel-title');
+  if (titleEl) titleEl.textContent = isRegisterMode
+    ? getTranslation('login.registerTitle', currentLang)
+    : getTranslation('login.title', currentLang);
+  const submitBtn = document.getElementById('login-submit-btn');
+  if (submitBtn) submitBtn.textContent = isRegisterMode
+    ? getTranslation('login.registerBtn', currentLang)
+    : getTranslation('login.submitBtn', currentLang);
+  const textEl = document.querySelector('[data-i18n="login.toggleText"]');
+  const linkEl = document.querySelector('[data-i18n="login.toggleLink"]');
+  if (textEl) textEl.textContent = isRegisterMode
+    ? getTranslation('login.hasAccount', currentLang)
+    : getTranslation('login.toggleText', currentLang);
+  if (linkEl) linkEl.textContent = isRegisterMode
+    ? getTranslation('login.signInLink', currentLang)
+    : getTranslation('login.toggleLink', currentLang);
+}
+
+
+/* ================================================================
+   8. MOBILE MENU (hamburger)
+   Circular button that opens a full-screen nav overlay.
+   Closes on: link click, outside click, Escape key, resize to desktop.
+
+   BREAKPOINT NOTE: The hamburger activates at 1100px (matching
+   the CSS media query in style.css section 19). Any change to
+   that CSS breakpoint must also be updated here.
+================================================================ */
+function openMobileMenu() {
+  mobileMenuOpen = true;
+  const btn  = document.getElementById('mobileMenuBtn');
+  const menu = document.getElementById('mobileMenu');
+  if (btn)  btn.classList.add('open');
+  if (menu) menu.classList.add('open');
+  document.body.style.overflow = 'hidden'; /* Prevent background scroll */
+}
+
+function closeMobileMenu() {
+  mobileMenuOpen = false;
+  const btn  = document.getElementById('mobileMenuBtn');
+  const menu = document.getElementById('mobileMenu');
+  if (btn)  btn.classList.remove('open');
+  if (menu) menu.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function toggleMobileMenu() {
+  mobileMenuOpen ? closeMobileMenu() : openMobileMenu();
+}
+
+function initMobileMenu() {
+  const btn = document.getElementById('mobileMenuBtn');
+  if (btn) btn.addEventListener('click', toggleMobileMenu);
+
+  /* Close on any link click inside the mobile menu */
+  const menu = document.getElementById('mobileMenu');
+  if (menu) {
+    menu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+  }
+
+  /* Close on Escape key */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && mobileMenuOpen) closeMobileMenu();
+  });
+
+  /*
+    Close mobile menu when window resizes back to desktop width.
+    IMPORTANT: this threshold (1100px) must match the CSS breakpoint
+    in style.css section 19 (@media max-width: 1100px).
+  */
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 1100 && mobileMenuOpen) closeMobileMenu();
+  });
+}
+
+
+/* ================================================================
+   9. SEARCH BAR
+   TODO (Phase 1): Replace SEARCH_INDEX with Sanity CMS queries.
+================================================================ */
 function initSearch() {
-  const searchInput    = document.getElementById('heroSearch');
-  const searchDropdown = document.getElementById('searchDropdown');
-  if (!searchInput) return;
+  const input    = document.getElementById('heroSearch');
+  const dropdown = document.getElementById('searchDropdown');
+  if (!input || !dropdown) return;
 
-  searchInput.addEventListener('input', function () {
+  input.addEventListener('input', function () {
     const q = this.value.trim().toLowerCase();
-    searchDropdown.innerHTML = '';
-    if (q.length < 2) { searchDropdown.classList.remove('visible'); return; }
-    const results = SEARCH_DATA.filter(d =>
-      d.title.toLowerCase().includes(q) || d.cat.toLowerCase().includes(q)
+    dropdown.innerHTML = '';
+    if (q.length < 2) { dropdown.classList.remove('visible'); return; }
+    const results = SEARCH_INDEX.filter(e =>
+      e.title.toLowerCase().includes(q) || e.cat.toLowerCase().includes(q)
     ).slice(0, 6);
     if (results.length === 0) {
-      searchDropdown.innerHTML = '<div class="search-no-result">Aucun résultat trouvé dans les archives.</div>';
+      dropdown.innerHTML = `<div class="search-no-result">${getTranslation('search.noResult', currentLang)}</div>`;
     } else {
-      results.forEach(r => {
-        const el = document.createElement('a');
-        el.className = 'search-result';
-        el.href      = '#';
-        el.innerHTML = `<span class="search-result-cat">${r.cat}</span><span class="search-result-title">${r.title}</span>`;
-        searchDropdown.appendChild(el);
+      results.forEach(entry => {
+        const link = document.createElement('a');
+        link.className = 'search-result';
+        link.href      = '#';
+        link.setAttribute('role', 'option');
+        link.innerHTML = `<span class="search-result-cat">${entry.cat}</span><span class="search-result-title">${entry.title}</span>`;
+        dropdown.appendChild(link);
       });
     }
-    searchDropdown.classList.add('visible');
+    dropdown.classList.add('visible');
   });
 
   document.addEventListener('click', e => {
     const wrap = document.querySelector('.hero-search-wrap');
-    if (wrap && !wrap.contains(e.target)) searchDropdown.classList.remove('visible');
+    if (wrap && !wrap.contains(e.target)) dropdown.classList.remove('visible');
   });
 }
 
-/* ══════════════════════════════════════
-   INITIALISATION
-   (tout ce qui nécessite que le DOM soit chargé)
-══════════════════════════════════════ */
 
+/* ================================================================
+   11. HERO LOGO OBSERVER
+   Uses IntersectionObserver to watch .hero-main-title.
+   When the title scrolls out of the viewport, adds .logo-visible to
+   .header-logo so the wordmark fades in. Removes it when the title
+   scrolls back into view (user returns to the top).
+================================================================ */
+function initLogoObserver() {
+  const heroTitle  = document.querySelector('.hero-main-title');
+  const headerLogo = document.querySelector('.header-logo');
+  if (!heroTitle || !headerLogo) return;
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      /* Toggle .logo-visible: true when title is NOT intersecting */
+      headerLogo.classList.toggle('logo-visible', !entry.isIntersecting);
+    });
+  }, { threshold: 0 });
+
+  observer.observe(heroTitle);
+}
+
+
+/* ================================================================
+   10. INITIALIZATION
+   All DOM-dependent code runs after the page is fully loaded.
+================================================================ */
 document.addEventListener('DOMContentLoaded', function () {
 
-  /* Vérification session */
+  /* Session persistence */
   if (sessionStorage.getItem('lodl-auth') === '1') {
     document.getElementById('gate').style.display = 'none';
     document.getElementById('wiki').style.display = 'block';
   }
 
-  /* Touche Entrée sur le mot de passe */
+  /* Password gate: Enter key */
   const pwdInput = document.getElementById('pwd-input');
-  if (pwdInput) {
-    pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
-  }
+  if (pwdInput) pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
 
-  /* Fermer le panel de connexion en cliquant ailleurs */
+  /* Login panel: close on outside click */
   document.addEventListener('click', e => {
-    const panel = document.getElementById('login-panel');
+    const panel       = document.getElementById('login-panel');
     const headerRight = document.querySelector('.header-right');
     if (panel && headerRight && !headerRight.contains(e.target)) {
       panel.classList.remove('open');
+      const btn = document.querySelector('.login-btn');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
     }
   });
 
-  /* Slider luminosité */
+  /* Lanternerie: brightness slider */
   const slider = document.getElementById('brightnessSlider');
   if (slider) {
     slider.addEventListener('input', function () {
-      trailL = parseInt(this.value);
-      updatePreview();
+      trailL = parseInt(this.value, 10);
+      updateColorPreview();
     });
   }
 
-  /* Toggle filament */
-  const trailToggle = document.getElementById('trailToggle');
-  if (trailToggle) {
-    trailToggle.addEventListener('change', function () {
-      trailActive = this.checked;
-    });
-  }
+  /* Lanternerie: trail toggle */
+  const toggle = document.getElementById('trailToggle');
+  if (toggle) toggle.addEventListener('change', function () { trailActive = this.checked; });
 
-  /* Lancement */
-  initCursor();
+  /* Apply saved language */
+  applyTranslations(currentLang);
+
+  /* Initialize all modules */
+  initCursorTrail();
   initColorWheel();
-  initPresets();
+  initColorPresets();
   initCarousel();
+  initMobileMenu();
   initSearch();
-  updatePreview();
+  initLogoObserver();
+  updateColorPreview();
 
 });
