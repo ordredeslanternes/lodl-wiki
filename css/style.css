@@ -231,8 +231,10 @@ body {
 /* Wordmark image: starts invisible, transitions to full opacity on .logo-visible */
 .header-wordmark {
   display: block;
-  height: 36px;
+  height: 48px;
+  max-height: 48px;
   max-width: 100%;
+  width: auto;
   opacity: 0;
   transition: opacity 0.4s ease;
 }
@@ -470,6 +472,13 @@ body {
   font-weight: 700; color: var(--gold); line-height: 1;
   letter-spacing: 0.04em; text-shadow: 0 4px 40px rgba(0,0,0,0.8);
   margin-bottom: 1.5rem;
+}
+/* Visual wordmark replacing the sr-only h1 in the hero center block */
+.hero-wordmark {
+  display: block;
+  max-width: min(700px, 85vw);
+  height: auto;
+  margin-bottom: 2.5rem;
 }
 .hero-tagline {
   font-size: clamp(0.95rem, 2vw, 1.2rem);
